@@ -1,14 +1,14 @@
 import sys, png
 
-if (len(sys.argv) > 1):
-	print("Opening " + sys.argv[1])
+def transform_file_to_heightfield(file_in, file_out):
+	print("Opening " + file_in)
 
 	everestHeight = 8848
 	maxNum = 65535
 
 	# Opening files
-	asc = open(sys.argv[1])
-	hf = open("salida.png", "wb")
+	asc = open(file_in)
+	hf = open(file_out, "wb")
 
 	# First data
 	line = asc.readline()
@@ -28,7 +28,7 @@ if (len(sys.argv) > 1):
 
 	# Progress bar
 	toolbar_width = 40
-	completeBar = nrows/40
+	completeBar = nrows/toolbar_width
 	count = 0
 
 	# setup toolbar
@@ -63,5 +63,3 @@ if (len(sys.argv) > 1):
 	hf.close()
 
 	print("Done!")
-else:
-	print("Error: Introduce MDT file.")
