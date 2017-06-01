@@ -3,7 +3,8 @@ import sys, png
 def transform_file_to_heightfield(file_in, file_out):
 	print("Opening " + file_in)
 
-	everestHeight = 8848
+	#everestHeight = 8848
+	everestHeight = 4000
 	maxNum = 65535
 
 	# Opening files
