@@ -1,10 +1,8 @@
 import sys, png
 
-def transform_file_to_heightfield(file_in, file_out):
+def transform_file_to_heightfield(file_in, file_out, maxHeight):
 	print("Opening " + file_in)
 
-	#everestHeight = 8848
-	everestHeight = 4000
 	maxNum = 65535
 
 	# Opening files
@@ -29,7 +27,7 @@ def transform_file_to_heightfield(file_in, file_out):
 
 	# Progress bar
 	toolbar_width = 40
-	completeBar = nrows/toolbar_width
+	completeBar = nrows//toolbar_width
 	count = 0
 
 	# setup toolbar
@@ -44,15 +42,16 @@ def transform_file_to_heightfield(file_in, file_out):
 	for line in lines:
 		points = line.split()
 		newpoints = [float(x) for x in points]
-		newpoints = [x*maxNum/everestHeight for x in newpoints]
-		newpoints = [int(x) for x in newpoints]		 
-		pointsList.append(newpoints)																				
+		newpoints = [x*maxNum/maxHeight for x in newpoints]
+		newpoints = [int(x) for x in newpoints]
+		pointsList.append(newpoints)
 
-		count +=1
+		count += 1
+		#print("count = " + str(count) + " - completeBar = " + str(completeBar))
 		if (count == completeBar):
 			count = 0
 			sys.stdout.write("=")
-    		sys.stdout.flush()			
+			sys.stdout.flush()
 
 	sys.stdout.write("\n")
 
