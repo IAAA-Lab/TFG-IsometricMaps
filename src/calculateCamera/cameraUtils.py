@@ -7,19 +7,18 @@ from vector_XYZ import VectorXYZ
 def camera_for_bounds(xMin, zMin, xSize, zSize, angleDeg, direction):
 	cam = Camera()
 
-	lookAt = VectorXYZ(xMin + xSize * 0.5, 0, zMin + zSize * 0.5)
-
-	maxSize = max(xSize, zSize)
-	if (maxSize == xSize):
-		cameraDistance = xMin + xSize
-	else:
-		cameraDistance = zMin + zSize	
+	heightCam = 10000
+	lookAtHeight = 1200
+	lonM = xMin + xSize * 0.5
+	latM = zMin + zSize * 0.5	
 
 	rads = math.radians(angleDeg)
 	sin = math.sin(rads)
+	cos = math.cos(rads)
+	tan = math.tan(rads)
 
 	cameraOffsetX = 0
-	cameraOffsetZ = - maxSize * math.cos(rads)
+	cameraOffsetZ = heightCam / tan 
 
 	if (direction == 'W') or (direction == 'E'):
 		aux = cameraOffsetX
@@ -34,9 +33,13 @@ def camera_for_bounds(xMin, zMin, xSize, zSize, angleDeg, direction):
 		cameraOffsetX = - cameraOffsetX
 		cameraOffsetZ = - cameraOffsetZ	
 
-	#setCamera(posX, posY, posZ, upX, upY, upZ, lookAtX, lookAtY, lookAtZ, aspectRatio, volumeHeight)	
-	cam.setCamera(lookAt.get_x() + cameraOffsetX, cameraDistance * sin,
-		lookAt.get_z() + cameraOffsetZ, 0, 1, math.tan(rads), lookAt.get_x(),
-		lookAt.get_y(), lookAt.get_z(),	xSize / (zSize * sin), zSize * sin)
+	initialUp = VectorXYZ(0, tan, 1)
+	initialUp = initialUp.normalize().mult(zSize).mult(sin)
+	upLength = initialUp.length()
+
+	#setCamera(posX, posY, posZ, upX, upY, upZ, lookAtX, lookAtY, lookAtZ, rightX, aspectRatio)	
+	cam.setCamera(lonM - cameraOffsetX, heightCam + lookAtHeight, latM - cameraOffsetZ,
+		initialUp.get_x(), initialUp.get_y(), initialUp.get_z(), lonM, lookAtHeight,
+		latM, xSize, xSize / upLength)
 
 	return cam	

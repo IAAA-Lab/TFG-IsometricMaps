@@ -1,20 +1,20 @@
 #include "colors.inc"
 
 # declare ortofotoCenter = <722070, 0, 4669465>;
-# declare YScaleHeightField = 5000; // metros de altura que corresponden al máximo en un height_field. Cuanto más alto más se exagerarán las alturas. Si el height field se ha generado asignando el valor máximo a p.ej. 4000 m. de altura, este valor debería estar en las cercanías de 4000 para el máximo realismo, pero es posible que quede mejor que sea un poco más grande.
+# declare YScaleHeightField = 4000; // metros de altura que corresponden al máximo en un height_field. Cuanto más alto más se exagerarán las alturas. Si el height field se ha generado asignando el valor máximo a p.ej. 4000 m. de altura, este valor debería estar en las cercanías de 4000 para el máximo realismo, pero es posible que quede mejor que sea un poco más grande.
 # declare mdtPos = <704400, 0, 4652400>; // xllcenter yllcenter tal cual están en el ASC
 # declare ortoLowLeft = <718450.25, 0, 4666940.25>; // coordenada inferior izquierda del JPG, ojo, no son los valores directos del JGW
 # declare orto2LowLeft = <718600.25, 0, 4662309.75>; // coordenada inferior izquierda del JPG, ojo, no son los valores directos del JGW
 
 camera { 
 	orthographic
-	location <722070.25, 513140.4968159609, 4664345.296904209>
-	right <7240.000000000001, -0.0, 0>
-	up <0.0, 3570.8892449920645,3570.889244992064>
-	look_at  <722070.25, 0, 4669464.75>
+	location <732070.0, 11200, 4669465.0>
+	right <5050, 0, 0>
+	up <0.0, 3620, 3620>
+	look_at  <722070, 1200, 4669465>
 }
 
-light_source {ortofotoCenter + <0, 8000, 0> color White }
+light_source {ortofotoCenter + <5000, 8000, 0> color White }
 
 height_field{
 	png "./PNG/MDT05-0286-H30-LIDAR.png"

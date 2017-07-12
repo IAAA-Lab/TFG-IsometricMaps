@@ -7,6 +7,7 @@ class Camera(object):
 	def __init__(self):
 		self.__pos = None
 		self.__up = None
+		self.__right = None
 		self.__lookAt = None
 		self.__aspectRatio = None
 		self.__volumeHeight = None
@@ -16,6 +17,9 @@ class Camera(object):
 		
 	def get_up(self):
 		return self.__up
+
+	def get_right(self):
+		return self.__right	
 		
 	def get_lookAt(self):
 		return self.__lookAt
@@ -35,13 +39,10 @@ class Camera(object):
 	def getViewDirection(self):
 		return self.__lookAt.subtract(self.__pos).normalize()
 
-	def getRight(self):
-		return self.getViewDirection().cross(self.__up).normalize()
-
 	def setCamera(self, posX, posY, posZ, upX, upY, upZ, lookAtX, lookAtY, 
-		lookAtZ, aspectRatio, volumeHeight):
+		lookAtZ, rightX, aspectRatio):
 		self.__pos = VectorXYZ(posX, posY, posZ)
 		self.__up = VectorXYZ(upX, upY, upZ)
+		self.__right = VectorXYZ(rightX, 0, 0)
 		self.__lookAt = VectorXYZ(lookAtX, lookAtY, lookAtZ)
 		self.__aspectRatio = aspectRatio
-		self.__volumeHeight = volumeHeight
