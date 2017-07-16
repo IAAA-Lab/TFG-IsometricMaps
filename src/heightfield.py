@@ -8,18 +8,27 @@ def transform_file_to_heightfield(file_in, file_out, maxHeight):
 	# Opening files
 	asc = open(file_in)
 	hf = open(file_out, "wb")
+	info = open(file_out[:-4] + ".txt", "w")
 
 	# First data
 	line = asc.readline()
 	aux = line.split()
 	ncols = int(aux[1])
+	info.write(aux[1] + "\n")
 
 	line = asc.readline()
 	aux = line.split()
 	nrows = int(aux[1])
+	info.write(aux[1] + "\n")
 
-	asc.readline() #xllcenter
-	asc.readline() #yllcenter
+	line = asc.readline() # xllcenter
+	aux = line.split()
+	info.write(aux[1] + "\n")
+
+	line = asc.readline() # zllcenter
+	aux = line.split()
+	info.write(aux[1] + "\n")
+
 	asc.readline() #cellsize
 	asc.readline() #nodata_value
 
@@ -61,5 +70,6 @@ def transform_file_to_heightfield(file_in, file_out, maxHeight):
 
 	asc.close()
 	hf.close()
+	info.close()
 
 	print("Done!")

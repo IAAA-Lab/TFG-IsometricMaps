@@ -45,7 +45,7 @@ class VectorXYZ(object):
 		return VectorXYZ(self.__x * scalar, self.__y * scalar, self.__z * scalar)
 	
 	def toString(self):
-		return "(" + str(self.__x) + "," + str(self.__y) + "," + str(self.__z) + ")"
+		return "<" + str(self.__x) + ", " + str(self.__y) + ", " + str(self.__z) + ">"
 
 	def rotateX(self, angleRad):
 		sin = math.sin(angleRad)

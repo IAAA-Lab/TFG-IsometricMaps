@@ -4,7 +4,7 @@ import math
 from camera import Camera
 from vector_XYZ import VectorXYZ
 
-def camera_for_bounds(xMin, zMin, xSize, zSize, angleDeg, direction):
+def calculate_camera(xMin, zMin, xSize, zSize, angleDeg, direction):
 	cam = Camera()
 
 	heightCam = 10000
@@ -12,7 +12,7 @@ def camera_for_bounds(xMin, zMin, xSize, zSize, angleDeg, direction):
 	lonM = xMin + xSize * 0.5
 	latM = zMin + zSize * 0.5	
 
-	rads = math.radians(angleDeg)
+	rads = math.radians(int(angleDeg))
 	sin = math.sin(rads)
 	cos = math.cos(rads)
 	tan = math.tan(rads)
