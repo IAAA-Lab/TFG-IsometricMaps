@@ -47,9 +47,9 @@ def main():
 
 			# Generate povray file
 
-			aspectRatio = povray_writer.write_povray_file("../PNG/MDT05-0286-H30-LIDAR.png", "../PNOA/pnoa_2012_286_3_1.jpg", args.dir_from, args.angle)
+			aspectRatio = povray_writer.write_povray_file("../PNG/MDT05-0286-H30-LIDAR.png", "../PNOA/pnoa_2012_286_3_2.jpg", args.dir_from, args.angle)
 			h = 1000
-			w = int(h * aspectRatio)
+			w = int(h * aspectRatio + 0.5)
 
 			# Rendering using new povray file
 

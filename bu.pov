@@ -28,7 +28,7 @@ height_field{
 		pigment { 
 			//White
 			image_map {
-				jpeg "./PNOA/pnoa_2012_286_3_1.jpg"
+				jpeg "./PNOA/pnoa_2012_286_3_1.jpg/pnoa_2012_286_3_1.jpg"
 				once // No queremos que se repita
 			}
 		}
