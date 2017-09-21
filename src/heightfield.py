@@ -29,7 +29,10 @@ def transform_file_to_heightfield(file_in, file_out, maxHeight):
 	aux = line.split()
 	info.write(aux[1] + "\n")
 
-	asc.readline() #cellsize
+	line = asc.readline() #cellsize
+	aux = line.split()
+	info.write(aux[1] + "\n")
+	
 	asc.readline() #nodata_value
 
 	print("Reading points...")
