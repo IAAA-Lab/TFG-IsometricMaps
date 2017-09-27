@@ -1,8 +1,11 @@
 import sys, os
 
+m_file = "mdt_data.txt"
+o_file = "orto_data.txt"
+
 def load_mdt_info(png_directory):
 	print("Loading MDTs data...")
-	f = open("mdt_data.txt", "w")
+	f = open(m_file, "w")
 
 	for base, dirs, files in os.walk(png_directory):
 		for mdt_file in files:
@@ -21,9 +24,40 @@ def load_mdt_info(png_directory):
 	f.close()
 	print("Load successful")
 
+def find_mdt(x1, y1, x2, y2):
+	mdts = []
+	f = open(m_file, "r")
+
+	for line in f:
+		info = line.split()
+
+		# Calculate mdt vertex points
+		mx1 = float(info[3]) - (float(info[1]) / 2) * float(info[5])
+		mx2 = float(info[3]) + (float(info[1]) / 2) * float(info[5])
+		my1 = float(info[4]) + (float(info[2]) / 2) * float(info[5])
+		my2 = float(info[4]) - (float(info[2]) / 2) * float(info[5])
+
+		if is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
+			mdts.append(info[0])
+		
+	f.close()
+
+	return mdts
+
+def is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
+	# X axis
+	if ((x2 < mx1) or (x1 > mx2)):
+		return False
+	# Y axis	
+	elif ((y1 < my2) or (y2 > my1)):
+		return False
+	else:
+		return True	 	
+
+
 def load_orto_info(orto_directory):
 	print("Loading ortophotos data...")
-	f = open("orto_data.txt", "w")
+	f = open(o_file, "w")
 
 	for base, dirs, files in os.walk(orto_directory):
 		for d in dirs:

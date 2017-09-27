@@ -75,18 +75,20 @@ def main():
 			minY = 4652400 - 4000 * 2.5 + offset # Se suma el offset para que luego los datos concuerden al aplicarle el offset
 			maxY = 4671000 + 4000 * 2.5 - offset
 			
-			coordinates = input("Introduce UTM X and Y coordinates, separated by a blank space and respecting the values min " 
-				+ "and max for the coordinates, for upper left vertex (" + str(minX) + " <= X1 <= " + str(maxX) + " " + str(minY) 
-				+ " <= Y1 <= " + str(maxY) + "): ")
-			coordinates1 = coordinates.split()
+			#coordinates = input("Introduce UTM X and Y coordinates, separated by a blank space and respecting the values min " 
+			#	+ "and max for the coordinates, for upper left vertex (" + str(minX) + " <= X1 <= " + str(maxX) + " " + str(minY) 
+			#	+ " <= Y1 <= " + str(maxY) + "): ")
+			#coordinates1 = coordinates.split()
+			coordinates1 = ["700000", "4660000"]
 
 			if (len(coordinates1) == 2 and float(coordinates1[0]) >= minX and float(coordinates1[0]) <= maxX and 
 					float(coordinates1[1]) >= minY and float(coordinates1[1]) <= maxY):
 				
-				coordinates = input("Introduce UTM X and Y coordinates, separated by a blank space and respecting the values min " 
-				+ "and max for the coordinates, for bottom right vertex (" + coordinates1[0] + " <= X2 <= " + str(maxX) + " " + str(minY) 
-				+ " <= Y2 <= " + coordinates1[1] + "): ")
-				coordinates2 = coordinates.split()
+				#coordinates = input("Introduce UTM X and Y coordinates, separated by a blank space and respecting the values min " 
+				#	+ "and max for the coordinates, for bottom right vertex (" + coordinates1[0] + " <= X2 <= " + str(maxX) + " " + str(minY) 
+				#	+ " <= Y2 <= " + coordinates1[1] + "): ")
+				#coordinates2 = coordinates.split()
+				coordinates2 = ["710000", "4650000"]	
 
 				if (len(coordinates2) == 2 and float(coordinates2[0]) >= minX and float(coordinates2[0]) <= maxX and 
 						float(coordinates2[1]) >= minY and float(coordinates2[1]) <= maxY and coordinates1[0] < coordinates2[0]
@@ -99,8 +101,7 @@ def main():
 					coordinates1[1] = float(coordinates1[1]) + offset
 					coordinates2[1] = float(coordinates2[1]) - offset
 
-					print(coordinates1)
-					print(coordinates2)
+					load_info.find_mdt(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1])
 
 				else:
 					print("Error: Introduce UTM coordinates correctly.")
