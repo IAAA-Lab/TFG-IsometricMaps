@@ -39,7 +39,7 @@ def main():
 
 			# Load info data to file
 
-			load_info.load_info(args.png_directory, args.orto_directory)
+			#load_info.load_info(args.png_directory, args.orto_directory)
 
 			# Divide
 
@@ -101,24 +101,19 @@ def main():
 					coordinates1[1] = float(coordinates1[1]) + offset
 					coordinates2[1] = float(coordinates2[1]) - offset
 
-					mdts = load_info.find_mdt(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1])
-					ortos = load_info.find_orto(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1], mdts)
+					mdt_list = load_info.find_mdt(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1])
+					orto_list = load_info.find_orto(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1], mdt_list)
 
-					print(mdts)
-					print(ortos)
+					print(povray_writer.write_heightfields(mdt_list, orto_list)) # Generate a string which contain the heightfields to pov file.
 
 				else:
 					print("Error: Introduce UTM coordinates correctly.")
 			else:
-				print("Error: Introduce UTM coordinates correctly.")	
-
-			#orto_list = ["../PNOA/pnoa_2012_248_3_4.jpg", "../PNOA/pnoa_2012_286_3_1.jpg"] # Pa probar 					
-
-			#print(povray_writer.write_heightfields(mdt_list, orto_list)) # Generate a string which contain the heightfields to pov file.
+				print("Error: Introduce UTM coordinates correctly.")	 					
 
 			# Generate povray file
 
-			#aspectRatio = povray_writer.write_povray_file("../PNG/MDT05-0248-H30-LIDAR.png", "../PNOA/MDT05-0248-H30-LIDAR/pnoa_2012_248_3_4.jpg", args.dir_from, args.angle)
+			#aspectRatio = povray_writer.write_povray_file("../PNG/MDT05-0248-H30-LIDAR.png", "../PNOA/MDT05-0248-H30-LIDAR/pnoa_2012_248_1_4.jpg", args.dir_from, args.angle)
 			#h = 1000
 			#w = int(h * aspectRatio + 0.5)
 

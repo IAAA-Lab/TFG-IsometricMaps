@@ -11,7 +11,7 @@ def load_mdt_info(png_directory):
 	for base, dirs, files in os.walk(png_directory):
 		for mdt_file in files:
 			if mdt_file[-4:] == ".txt":
-				f.write(mdt_file[:-4])
+				f.write(png_directory + mdt_file[:-3] + "png")
 
 				mdt = open(png_directory + mdt_file)
 				for line in mdt:
@@ -39,7 +39,7 @@ def find_mdt(x1, y1, x2, y2):
 		my2 = float(info[4]) - (float(info[2]) / 2) * float(info[5])
 
 		if is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
-			mdts.append(info[0])
+			mdts.append(info)
 		
 	f.close()
 
@@ -62,7 +62,7 @@ def load_orto_info(orto_directory):
 							if orto_file[-4:] == ".jgw":
 								jgw = open(orto_directory + d + "/" + dAux + "/" + orto_file)
 
-								f.write(d + " " + dAux + " ")
+								f.write(d + " " + orto_directory + d + "/" + dAux + " ")
 
 								aux = jgw.readline().split()
 								f.write(aux[0] + " ")
@@ -97,7 +97,7 @@ def find_orto(x1, y1, x2, y2, mdts):
 		info = line.split()
 		found = False
 		for mdt in mdts:
-			if mdt == info[0]:
+			if mdt[0][mdt[0].rfind("/") + 1:-4] == info[0]:
 				found = True
 				break	
 
@@ -108,7 +108,7 @@ def find_orto(x1, y1, x2, y2, mdts):
 			my2 = my1 + float(info[3]) * float(info[7]) + float(info[3])
 			
 			if is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
-				ortos.append(info[1])				
+				ortos.append(info)				
 
 	f.close()
 

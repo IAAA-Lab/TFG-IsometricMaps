@@ -6,56 +6,32 @@ def write_heightfields(mdt_list, orto_list):
 	heightfields_to_pov = ""
 
 	for mdt_file in mdt_list:
-		for orto_dir in orto_list:
-			if mdt_file[mdt_file.rfind("/") + 1:-4] == orto_dir[orto_dir.rfind("/") + 1:]:
-				mdt = open(mdt_file[:-4] + ".txt")
-				mdt_width = mdt.readline()[:-1]
-				mdt_height = mdt.readline()[:-1]
-				mdt_x_center = mdt.readline()[:-1]
-				mdt_z_center = mdt.readline()[:-1]
-				mdt.close()
+		height_field = ("height_field {\npng \"" + mdt_file[0] + "\"\nsmooth\nscale <" + mdt_file[1] 
+			+ "*" + mdt_file[5] + ", 4000, " + mdt_file[2] + "*" + mdt_file[5] + ">\ntranslate <" 
+			+ mdt_file[3] + ", 0, " + mdt_file[4] + "> + <-2.5, 0, -2.5>\n")
 
-				height_field = ("height_field {png \"" + mdt_file + "\" smooth scale <" + mdt_width 
-					+ "*5, 4000, " + mdt_height + "*5> translate <" + mdt_x_center + ", 0, " + mdt_z_center 
-					+ "> + <-2.5, 0, -2.5>\n")
+		# Add all ortophotos of specified mdt
 
-				# Add all ortophotos of specified mdt		
-					
-				for base, dirs, files in os.walk(orto_dir):
-					for d in dirs:
-						ortophoto_directory = orto_dir + "/" + d
-						for base, dirs, files in os.walk(ortophoto_directory):
-							for f in files:
-								if f[-4:] == ".jpg":
-									image = ortophoto_directory + "/" + f
-									width, height = Image.open(image).size	
-								if f[-4:] == ".jgw":
-									jgw = open(ortophoto_directory + "/" + f)
+		for orto_file in orto_list:
+			if mdt_file[0][mdt_file[0].rfind("/") + 1:-4] == orto_file[0]:
+				for base, dirs, files in os.walk(orto_file[1]):
+					for f in files:
+						if f[-4:] == ".jpg":
+							image = orto_file[1] + "/" + f
 
-									pixelX_size = jgw.readline()
-									jgw.readline() 
-									jgw.readline()
-									pixelZ_size = -float(jgw.readline())
-									x_coord = jgw.readline()
-									z_coord = jgw.readline()
-							break		
-						
-						xSize = int(float(pixelX_size) * width)
-						zSize = int(float(pixelZ_size) * height)
-						xMin = float(x_coord) - float(pixelX_size) / 2
-						zMin = float(z_coord) + float(pixelZ_size) / 2 - zSize
+				xSize = float(orto_file[2]) * float(orto_file[6])
+				zSize = float(orto_file[3]) * -float(orto_file[7])
+				xMin = float(orto_file[4]) - float(orto_file[2]) / 2
+				zMin = float(orto_file[5]) + float(orto_file[3]) / 2 - zSize
 
-						height_field += ("texture{pigment{image_map{jpeg \"" + image + "\" once}} " 
-							+ "scale <" + str(xSize) + ", " + str(zSize) +", 1> rotate x*90 translate " 
-							+ "<" + str(xMin) + ", 0, " + str(zMin) + "> + <-0.25, 0, -0.25>}\n") 
-					break
+				height_field += ("texture {\npigment {\nimage_map {\njpeg \"" + image + "\"\nonce}}" 
+					+ "\nscale <" + str(xSize) + ", " + str(zSize) +", 1>\nrotate x*90\ntranslate " 
+					+ "<" + str(xMin) + ", 0, " + str(zMin) + "> + <-0.25, 0, -0.25>}\n")
 
-				height_field += "finish { ambient 0.2 diffuse 0.8 roughness 0.05}}"	
-				heightfields_to_pov += height_field	
+		height_field += "finish {\nambient 0.2\ndiffuse 0.8\nroughness 0.05}}"	
+		heightfields_to_pov += height_field	
 
 	return heightfields_to_pov			
-				
-					
 
 def write_povray_file(mdt_file, ortophoto_directory, dirFrom, angle):
 	Image.MAX_IMAGE_PIXELS = 1000000000 # To hide PIL warning
