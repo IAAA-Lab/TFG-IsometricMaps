@@ -1,4 +1,4 @@
-import sys, argparse, heightfield, os, povray_writer, load_info
+import sys, argparse, heightfield, os, povray_writer, load_info, povray_divider
 
 def main():
 	# Arguments
@@ -52,34 +52,20 @@ def main():
 			#				args.png_directory + asc_file[:-4] + '-D/' + asc_file[:-4] + '_%d.png')
 			#		break
 
-			# Obtain all MDTs and Ortophotos
-
-			mdt_list = []
-			orto_list = []
-
-			for base, dirs, files in os.walk(args.png_directory):
-				for mdt_file in files:
-					if mdt_file[-4:] == ".png":
-						mdt_list.append(args.png_directory + mdt_file)
-
-			for base, dirs, files in os.walk(args.orto_directory):
-				for orto_file in dirs:
-					orto_list.append(args.orto_directory + orto_file)
-				break
-
 			# Ask for coordinates
 
-			offset = 1000
-			minX = 704000 - 5720 * 2.5 + offset # Incluído de momento a mano (coordenada central mdt - nºcolumnas/2 * tamaño celda)
-			maxX = 704400 + 5760 * 2.5 - offset # Se comprueba en la lista que valores serían los mayores y cuales los menores
-			minY = 4652400 - 4000 * 2.5 + offset # Se suma el offset para que luego los datos concuerden al aplicarle el offset
-			maxY = 4671000 + 4000 * 2.5 - offset
+			#offset = 1000
+			offset = 0
+			minX = 704000 + offset # Incluído de momento a mano (coordenada central mdt - nºcolumnas/2 * tamaño celda)
+			maxX = 704400 + 5760 * 5 - offset # Se comprueba en la lista que valores serían los mayores y cuales los menores
+			minY = 4652400 + offset # Se suma el offset para que luego los datos concuerden al aplicarle el offset
+			maxY = 4671000 + 4000 * 5 - offset
 			
 			#coordinates = input("Introduce UTM X and Y coordinates, separated by a blank space and respecting the values min " 
 			#	+ "and max for the coordinates, for upper left vertex (" + str(minX) + " <= X1 <= " + str(maxX) + " " + str(minY) 
 			#	+ " <= Y1 <= " + str(maxY) + "): ")
 			#coordinates1 = coordinates.split()
-			coordinates1 = ["700000", "4675000"]
+			coordinates1 = ["713000", "4682000"]
 
 			if (len(coordinates1) == 2 and float(coordinates1[0]) >= minX and float(coordinates1[0]) <= maxX and 
 					float(coordinates1[1]) >= minY and float(coordinates1[1]) <= maxY):
@@ -88,7 +74,7 @@ def main():
 				#	+ "and max for the coordinates, for bottom right vertex (" + coordinates1[0] + " <= X2 <= " + str(maxX) + " " + str(minY) 
 				#	+ " <= Y2 <= " + coordinates1[1] + "): ")
 				#coordinates2 = coordinates.split()
-				coordinates2 = ["710000", "4670000"]	
+				coordinates2 = ["721000", "4678000"]	
 
 				if (len(coordinates2) == 2 and float(coordinates2[0]) >= minX and float(coordinates2[0]) <= maxX and 
 						float(coordinates2[1]) >= minY and float(coordinates2[1]) <= maxY and coordinates1[0] < coordinates2[0]
@@ -101,27 +87,30 @@ def main():
 					coordinates1[1] = float(coordinates1[1]) + offset
 					coordinates2[1] = float(coordinates2[1]) - offset
 
+					# Find mdts and ortophotos and write heighfields info 
+
 					mdt_list = load_info.find_mdt(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1])
 					orto_list = load_info.find_orto(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1], mdt_list)
 
-					print(povray_writer.write_heightfields(mdt_list, orto_list)) # Generate a string which contain the heightfields to pov file.
+					#pov_files = povray_divider.generate_pov_files(coordinates1, coordinates2, args.dir_from, args.angle, mdt_list, orto_list)
+					
+					heightfields = povray_writer.write_heightfields(mdt_list, orto_list) # Generate a string which contain the heightfields to pov file.
 
+					# Generate povray file
+
+					aspectRatio = povray_writer.write_povray_file(coordinates1, coordinates2, args.dir_from, args.angle, heightfields)
+					#h = (coordinates1[1] - coordinates2[1]) / 4 # 1/4 of z values distance in UTM coordinates
+					h = 2000
+					w = int(h * aspectRatio + 0.5)
+
+					# Rendering using new povray file
+
+					os.system('povray +Irender.pov -D +W' + str(w) + ' +H' + str(h))
+					#os.system('rm render.pov')
 				else:
 					print("Error: Introduce UTM coordinates correctly.")
 			else:
 				print("Error: Introduce UTM coordinates correctly.")	 					
-
-			# Generate povray file
-
-			#aspectRatio = povray_writer.write_povray_file("../PNG/MDT05-0248-H30-LIDAR.png", "../PNOA/MDT05-0248-H30-LIDAR/pnoa_2012_248_1_4.jpg", args.dir_from, args.angle)
-			#h = 1000
-			#w = int(h * aspectRatio + 0.5)
-
-			# Rendering using new povray file
-
-			#os.system('povray +Irender.pov +W' + str(w) + ' +H' + str(h))
-			#os.system('rm render.pov')
-
 		else:	
 			print("ERROR: dir_from must be N, S, W or E.")
 	else:

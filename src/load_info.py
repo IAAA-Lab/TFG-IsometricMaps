@@ -33,10 +33,10 @@ def find_mdt(x1, y1, x2, y2):
 		info = line.split()
 
 		# Calculate mdt vertex points
-		mx1 = float(info[3]) - (float(info[1]) / 2) * float(info[5])
-		mx2 = float(info[3]) + (float(info[1]) / 2) * float(info[5])
-		my1 = float(info[4]) + (float(info[2]) / 2) * float(info[5])
-		my2 = float(info[4]) - (float(info[2]) / 2) * float(info[5])
+		mx1 = float(info[3])
+		mx2 = float(info[3]) + float(info[1]) * float(info[5])
+		my1 = float(info[4]) + float(info[2]) * float(info[5])
+		my2 = float(info[4])
 
 		if is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
 			mdts.append(info)
@@ -56,7 +56,7 @@ def load_orto_info(orto_directory):
 				for dAux in dirs2:
 					for base3, dirs3, files3 in os.walk(orto_directory + d + "/" + dAux):
 						for orto_file in files3:
-							if orto_file[-4:] == ".jpg":
+							if orto_file[-4:] == ".jpg" and orto_file[0] == "H":
 								image = orto_directory + d + "/" + dAux + "/" + orto_file
 								width, height = Image.open(image).size	
 							if orto_file[-4:] == ".jgw":
