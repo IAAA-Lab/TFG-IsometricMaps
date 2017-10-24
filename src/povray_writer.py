@@ -16,7 +16,8 @@ def write_heightfields(mdt_list, orto_list):
 			if mdt_file[0][mdt_file[0].rfind("/") + 1:-4] == orto_file[0]:
 				for base, dirs, files in os.walk(orto_file[1]):
 					for f in files:
-						if f[-4:] == ".jpg" and f[0] == "H":
+						#if f[-4:] == ".jpg" and f[0] == "H":
+						if f[-4:] == ".jpg" and f[0] != "H":
 							image = orto_file[1] + "/" + f
 
 				xSize = float(orto_file[2]) * float(orto_file[6])
@@ -26,9 +27,11 @@ def write_heightfields(mdt_list, orto_list):
 
 				height_field += ("texture {\npigment {\nimage_map {\njpeg \"" + image + "\"\nonce}}" 
 					+ "\nscale <" + str(xSize) + ", " + str(zSize) +", 1>\nrotate x*90\ntranslate " 
-					+ "<" + str(xMin) + ", 0, " + str(zMin) + "> + <-0.25, 0, -0.25>}\n")
+					+ "<" + str(xMin) + ", 0, " + str(zMin) + ">\n")
 
-		height_field += write_heightfield_finish()	
+				height_field += write_texture_finish()
+
+		height_field += ("}\n")		
 		heightfields_to_pov += height_field	
 
 	return heightfields_to_pov			
@@ -46,7 +49,7 @@ def write_povray_file(xz1, xz2, dirFrom, angle, heightfields):
 	zCenter = xz2[1] + (xz1[1] - xz2[1]) / 2
 
 	#pov.write("light_source {<" + str(xCenter) + ", 0, " + str(zCenter) + "> + <5000, 8000, 0> color White }\n\n")
-	pov.write("light_source {<800000, 4900000, 0> color White }\n\n") # NE of Spain
+	pov.write("light_source {<800000, 8000000, 4900000> color White parallel}\n\n") # NE of Spain
 	pov.write(heightfields)
 
 	pov.close()
@@ -60,5 +63,5 @@ def write_headers_and_camera(pov, cam):
 		"\nright " + cam.get_right().toString() + "\nup " + cam.get_up().toString() + 
 		"\nlook_at " + cam.get_lookAt().toString() + "}\n\n")
 
-def write_heightfield_finish(): 
+def write_texture_finish(): 
 	return "finish {\nambient 0.2\ndiffuse 0.8\nroughness 0.05\n}\n}\n"

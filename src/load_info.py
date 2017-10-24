@@ -56,7 +56,8 @@ def load_orto_info(orto_directory):
 				for dAux in dirs2:
 					for base3, dirs3, files3 in os.walk(orto_directory + d + "/" + dAux):
 						for orto_file in files3:
-							if orto_file[-4:] == ".jpg" and orto_file[0] == "H":
+							#if orto_file[-4:] == ".jpg" and orto_file[0] == "H":
+							if orto_file[-4:] == ".jpg" and orto_file[0] != "H":
 								image = orto_directory + d + "/" + dAux + "/" + orto_file
 								width, height = Image.open(image).size	
 							if orto_file[-4:] == ".jgw":
