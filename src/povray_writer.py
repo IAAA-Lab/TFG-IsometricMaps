@@ -36,7 +36,7 @@ def write_heightfields(mdt_list, orto_list):
 
 	return heightfields_to_pov			
 
-def write_povray_file(xz1, xz2, dirFrom, angle, heightfields):
+def write_povray_file(xz1, xz2, dirFrom, angle, heightfields, spheres):
 	print("Generating pov-ray file...")
 
 	cam = cameraUtils.calculate_camera(xz1, xz2, angle, dirFrom)
@@ -50,7 +50,8 @@ def write_povray_file(xz1, xz2, dirFrom, angle, heightfields):
 
 	#pov.write("light_source {<" + str(xCenter) + ", 0, " + str(zCenter) + "> + <5000, 8000, 0> color White }\n\n")
 	pov.write("light_source {<800000, 8000000, 4900000> color White parallel}\n\n") # NE of Spain
-	pov.write(heightfields)
+	#pov.write(heightfields)
+	pov.write(spheres)
 
 	pov.close()
 

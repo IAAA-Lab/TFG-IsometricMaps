@@ -92,3 +92,5 @@ ENV/
 /PNG
 /PNOA
 /src/result_dir
+/LIDAR
+/application

@@ -1,4 +1,4 @@
-import sys, argparse, heightfield, os, povray_writer, load_info
+import sys, argparse, heightfield, os, povray_writer, load_info, read_lidar
 
 def render(c1, c2, dir_from, angle, result):
 	# Find mdts and ortophotos and write heighfields info 
@@ -8,11 +8,12 @@ def render(c1, c2, dir_from, angle, result):
 
 	if len(orto_list) <= 10:
 		heightfields = povray_writer.write_heightfields(mdt_list, orto_list) # Generate a string which contain the heightfields to pov file.
+		spheres = read_lidar.generate_spheres()
 
 		# Generate povray file
 
-		aspectRatio = povray_writer.write_povray_file(c1, c2, dir_from, angle, heightfields)
-		h = 2500
+		aspectRatio = povray_writer.write_povray_file(c1, c2, dir_from, angle, heightfields, spheres)
+		h = 5000
 		w = int(h * aspectRatio + 0.5)
 
 		# Rendering using new povray file
@@ -119,7 +120,7 @@ def main():
 					+ "and max for the coordinates, for upper left vertex (" + str(minX) + " <= X1 <= " + str(maxX) + " " + str(minY) 
 					+ " <= Y1 <= " + str(maxY) + "): ")
 				coordinates1 = coordinates.split()
-				print(coordinates1)
+				coordinates1 = ["711500", "4670000"]
 
 				if (len(coordinates1) == 2 and float(coordinates1[0]) >= minX and float(coordinates1[0]) <= maxX and 
 						float(coordinates1[1]) >= minY and float(coordinates1[1]) <= maxY):
@@ -128,6 +129,7 @@ def main():
 						+ "and max for the coordinates, for bottom right vertex (" + coordinates1[0] + " <= X2 <= " + str(maxX) + " " + str(minY) 
 						+ " <= Y2 <= " + coordinates1[1] + "): ")
 					coordinates2 = coordinates.split()
+					coordinates2 = ["715000", "4667000"]
 
 					if (len(coordinates2) == 2 and float(coordinates2[0]) >= minX and float(coordinates2[0]) <= maxX and 
 							float(coordinates2[1]) >= minY and float(coordinates2[1]) <= maxY and coordinates1[0] < coordinates2[0]
