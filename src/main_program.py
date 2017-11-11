@@ -1,4 +1,4 @@
-import sys, argparse, heightfield, os, povray_writer, load_info, read_lidar
+import sys, argparse, heightfield, os, povray_writer, load_info, read_lidar, cameraUtils
 
 def render(c1, c2, dir_from, angle, result):
 	# Find mdts and ortophotos and write heighfields info 
@@ -7,14 +7,15 @@ def render(c1, c2, dir_from, angle, result):
 	orto_list = load_info.find_orto(c1[0], c1[1], c2[0], c2[1], mdt_list)
 
 	if len(orto_list) <= 10:
+		cam = cameraUtils.calculate_camera(c1, c2, angle, dir_from)
 		heightfields = povray_writer.write_heightfields(mdt_list, orto_list) # Generate a string which contain the heightfields to pov file.
-		spheres = read_lidar.generate_spheres()
+		spheres = read_lidar.generate_spheres(cam)
 
 		# Generate povray file
 
-		aspectRatio = povray_writer.write_povray_file(c1, c2, dir_from, angle, heightfields, spheres)
-		h = 5000
-		w = int(h * aspectRatio + 0.5)
+		povray_writer.write_povray_file(cam, heightfields, spheres)
+		h = 3000
+		w = int(h * cam.get_aspectRatio() + 0.5)
 
 		# Rendering using new povray file
 

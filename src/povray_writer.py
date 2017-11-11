@@ -1,5 +1,5 @@
 from PIL import Image
-import os, cameraUtils
+import os
 
 def write_heightfields(mdt_list, orto_list):
 	Image.MAX_IMAGE_PIXELS = 1000000000 # To hide PIL warning
@@ -36,26 +36,23 @@ def write_heightfields(mdt_list, orto_list):
 
 	return heightfields_to_pov			
 
-def write_povray_file(xz1, xz2, dirFrom, angle, heightfields, spheres):
+def write_povray_file(cam, heightfields, spheres):
 	print("Generating pov-ray file...")
-
-	cam = cameraUtils.calculate_camera(xz1, xz2, angle, dirFrom)
-
 	pov = open("render.pov", "w")
 
 	write_headers_and_camera(pov, cam)
 
+	"""
 	xCenter = xz1[0] + (xz2[0] - xz1[0]) / 2
 	zCenter = xz2[1] + (xz1[1] - xz2[1]) / 2
+	pov.write("light_source {<" + str(xCenter) + ", 0, " + str(zCenter) + "> + <5000, 8000, 0> color White }\n\n")
+	"""
 
-	#pov.write("light_source {<" + str(xCenter) + ", 0, " + str(zCenter) + "> + <5000, 8000, 0> color White }\n\n")
 	pov.write("light_source {<800000, 8000000, 4900000> color White parallel}\n\n") # NE of Spain
-	#pov.write(heightfields)
+	pov.write(heightfields)
 	pov.write(spheres)
 
 	pov.close()
-
-	return cam.get_aspectRatio()
 
 def write_headers_and_camera(pov, cam):
 	pov.write("#include \"colors.inc\"\n\n")
