@@ -1,8 +1,13 @@
 from PIL import Image
+from laspy.file import File
+import numpy as np
 import sys, os
 
 m_file = "mdt_data.txt"
 o_file = "orto_data.txt"
+l_file = "lidar_data.txt"
+
+laszip = "/home/pablo/Documentos/LAStools/bin/laszip"
 
 def load_mdt_info(png_directory):
 	print("Loading MDTs data...")
@@ -113,8 +118,55 @@ def find_orto(x1, y1, x2, y2, mdts):
 
 	f.close()
 
-	return ortos	
+	return ortos
 
+
+def load_lidar_info(lidar_directory):
+	print("Loading LIDARs data...")
+	f = open(l_file, "w")
+
+	for base, dirs, files in os.walk(lidar_directory):
+		for lidar_file in files:
+			lidar_file = lidar_directory + lidar_file
+			f.write(lidar_file)
+
+			os.system(laszip + " -i " + lidar_file + " -o " + lidar_file[:-3] + "LAS")
+
+			inFile = File(lidar_file[:-3] + "LAS", mode='r')
+
+			x_min = inFile.header.min[0]
+			x_max = inFile.header.max[0]
+
+			y_min = inFile.header.min[1]
+			y_max = inFile.header.max[1]
+
+			f.write(" " + str(x_min) + " " + str(y_min) + " " + str(x_max) + " " + str(y_max) + "\n")
+
+			inFile.close()
+			os.system("rm " + lidar_file[:-3] + "LAS")
+
+	f.close()
+	print("Load successful")
+
+def find_lidar(x1, y1, x2, y2):
+	lidars = []
+	f = open(l_file, "r")
+
+	for line in f:
+		info = line.split()
+
+		# Calculate mdt vertex points
+		mx1 = float(info[1])
+		mx2 = float(info[3])
+		my1 = float(info[4])
+		my2 = float(info[2])
+
+		if is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
+			lidars.append(info)
+		
+	f.close()
+
+	return lidars		
 
 def is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
 	# X axis
@@ -126,6 +178,7 @@ def is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
 	else:
 		return True	
 
-def load_info(png_directory, orto_directory):
+def load_info(png_directory, orto_directory, lidar_directory):
 	load_mdt_info(png_directory)
-	load_orto_info(orto_directory)	
+	load_orto_info(orto_directory)
+	load_lidar_info(lidar_directory)	
