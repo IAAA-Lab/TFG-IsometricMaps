@@ -5,15 +5,15 @@ def render(c1, c2, dir_from, angle, result, zoom):
 
 	mdt_list = load_info.find_mdt(c1[0], c1[1], c2[0], c2[1])
 	orto_list = load_info.find_orto(c1[0], c1[1], c2[0], c2[1], mdt_list)
-	lidar_list = load_info.find_lidar(c1[0], c1[1], c2[0], c2[1])
-	lidar_list = ["/home/pablo/Documentos/Universidad/TFG/LIDAR/PNOA_2010_LOTE1_ARA-NORTE_712-4670_ORT-CLA-COL.LAZ"]
+	areas_list = load_info.find_a_interest(c1[0], c1[1], c2[0], c2[1])
+	lidar_list = load_info.find_lidar(areas_list)
+	lidar_list = ["/home/pablo/Documentos/Universidad/TFG/TFG-IsometricMaps/LIDAR/PNOA_2010_LOTE1_ARA-NORTE_712-4670_ORT-CLA-COL.LAZ"]
 		
 	if len(orto_list) <= 10:
 		cam = cameraUtils.calculate_camera(c1, c2, angle, dir_from)
 		heightfields = povray_writer.write_heightfields(mdt_list, orto_list) # Generate a string which contain the heightfields to pov file.
-		#spheres = read_lidar.generate_spheres(lidar_list, cam)
-		spheres = []
-
+		spheres = read_lidar.generate_spheres(lidar_list, areas_list, cam)
+		
 		# Calculate tiles
 
 		c1_tile = calculate_tile.calculate_tile(c1[0], c1[1], zoom)
@@ -29,18 +29,13 @@ def render(c1, c2, dir_from, angle, result, zoom):
 		w = 256 * w_tiles
 		#h = int(256 / cam.get_aspectRatio() + 0.5) * h_tiles
 		h = int(w / cam.get_aspectRatio() + 0.5) 
-		
-		"""
-		h = 3000
-		w = int(h * cam.get_aspectRatio() + 0.5)
-		"""
 
 		# Rendering using new povray file
 
 		print("Rendering " + result)
 		os.system('povray +Irender.pov +O' + result + ' -D +W' + str(w) + ' +H' + str(h))
-		os.system('rm render.pov')
-
+		#os.system('rm render.pov')
+		
 		return cam.get_aspectRatio()
 	else:
 		print("Error: The zone to render must be smaller (orto_list > 10). Try with other coordinates.")
@@ -197,7 +192,7 @@ def main():
 						result = "./result.png"
 
 						aspect_ratio = render(coordinates1, coordinates2, args.dir_from, args.angle, result, int(args.zoom))
-						tessellation(result, coordinates1, coordinates2, int(args.zoom), aspect_ratio)
+						#tessellation(result, coordinates1, coordinates2, int(args.zoom), aspect_ratio)
 
 						print("DONE!")	
 					else:

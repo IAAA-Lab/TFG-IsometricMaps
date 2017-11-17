@@ -1,10 +1,10 @@
 from laspy.file import File
 import numpy as np
-import colorsys, random, math, os
+import colorsys, random, math, os, load_info
 
 laszip = "/home/pablo/Documentos/LAStools/bin/laszip"
 
-def generate_spheres(lidar_list, cam):
+def generate_spheres(lidar_list, areas_list, cam):
 	print("Generating spheres...")
 	pos_v = cam.get_pos()
 	loo_v = cam.get_lookAt()
@@ -42,6 +42,15 @@ def generate_spheres(lidar_list, cam):
 			x_coordinate = point[0] * x_scale + x_offset
 			y_coordinate = point[1] * y_scale + y_offset
 			z_coordinate = point[2] * z_scale + z_offset
+
+			# In interesting zone?
+
+			interest = False
+			for area in areas_list:
+				if load_info.is_collision(float(area[0]), float(area[1]), float(area[2]), float(area[3]), 
+					x_coordinate, y_coordinate, x_coordinate, y_coordinate):
+					interest = True
+					break
 			
 			# Take neighbour point
 
@@ -59,8 +68,7 @@ def generate_spheres(lidar_list, cam):
 
 			point_to_a = distance(point, a)
 
-			if point_to_a < 150 and point_to_a != 0:
-			#if point_to_a != 0:			
+			if point_to_a != 0 and interest == True and z_coordinate > 400:			
 				# Take another neighbour (must be not collinear)
 
 				found = False
@@ -108,7 +116,7 @@ def generate_spheres(lidar_list, cam):
 					v2 = [x_b - x_coordinate, z_b - z_coordinate, y_b - y_coordinate]
 					normal = [v1[1] * v2[2] - v2[1] * v1[2], -(v1[0] * v2[2] - v2[0] * v1[2]), v1[0] * v2[1] - v2[0] * v1[1]]
 
-					if angle_between(pos_to_loo, normal) < 65:
+					if angle_between(pos_to_loo, normal) < 70:
 
 						# Point colors
 
@@ -153,7 +161,7 @@ def generate_spheres(lidar_list, cam):
 
 			spheres += ("disc {\n<" + point[0] + ", " + point[1] + ", " + point[2] + ">, <" 
 				+ point[3] + ", " + point[4] + ", " + point[5] + ">, 3\ntexture {\npigment { color rgb <" 
-				+ point[6] + ", " + point[7] + ", " + point[8] + "> }\n}\n}\n")
+				+ point[6] + ", " + point[7] + ", " + point[8] + "> }\n}\nno_shadow\n}\n")
 
 			#final_points.append(point_records[rand][0])
 			#point_records = np.delete(point_records, (rand), axis=0) # Muy lento

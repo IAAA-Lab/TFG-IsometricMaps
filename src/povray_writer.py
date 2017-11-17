@@ -50,7 +50,7 @@ def write_povray_file(cam, heightfields, spheres):
 
 	pov.write("light_source {<800000, 8000000, 4900000> color White parallel}\n\n") # NE of Spain
 	pov.write(heightfields)
-	#pov.write(spheres)
+	pov.write(spheres)
 
 	pov.close()
 

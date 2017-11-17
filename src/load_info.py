@@ -6,6 +6,7 @@ import sys, os
 m_file = "mdt_data.txt"
 o_file = "orto_data.txt"
 l_file = "lidar_data.txt"
+a_file = "areas_interest.txt"
 
 laszip = "/home/pablo/Documentos/LAStools/bin/laszip"
 
@@ -148,25 +149,47 @@ def load_lidar_info(lidar_directory):
 	f.close()
 	print("Load successful")
 
-def find_lidar(x1, y1, x2, y2):
+def find_lidar(areas):
 	lidars = []
 	f = open(l_file, "r")
 
 	for line in f:
 		info = line.split()
 
-		# Calculate mdt vertex points
+		# Calculate lidar vertex points
+		
 		mx1 = float(info[1])
 		mx2 = float(info[3])
 		my1 = float(info[4])
 		my2 = float(info[2])
 
-		if is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
-			lidars.append(info)
+		for area in areas:
+			if is_collision(float(area[0]), float(area[1]), float(area[2]), float(area[3]), mx1, my1, mx2, my2):
+				lidars.append(info)
+				break
 		
 	f.close()
 
-	return lidars		
+	return lidars
+
+def find_a_interest(x1, y1, x2, y2):
+	areas = []
+	f = open(a_file, "r")
+
+	for line in f:
+		info = line.split()
+
+		mx1 = float(info[0])
+		mx2 = float(info[2])
+		my1 = float(info[1])
+		my2 = float(info[3])
+
+		if is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
+			areas.append(info)
+
+	f.close()
+
+	return areas			
 
 def is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
 	# X axis
