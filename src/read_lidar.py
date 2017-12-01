@@ -4,13 +4,89 @@ import colorsys, random, math, os, load_info
 
 laszip = "/home/pablo/Documentos/LAStools/bin/laszip"
 
+def generate_spheres(lidar_list, areas_list):
+	print("Generating spheres...")
+	spheres = ""
+
+	for lidar_file in lidar_list:
+		lidar_file = lidar_file[0]
+		print("Generating spheres from " + lidar_file)
+		os.system(laszip + " -i " + lidar_file + " -o " + lidar_file[:-3] + "LAS")
+
+		inFile = File(lidar_file[:-3] + "LAS", mode='r')
+
+		point_records = inFile.points
+
+		x_scale = inFile.header.scale[0]
+		x_offset = inFile.header.offset[0]
+
+		y_scale = inFile.header.scale[1]
+		y_offset = inFile.header.offset[1]
+
+		z_scale = inFile.header.scale[2]
+		z_offset = inFile.header.offset[2]
+
+		final_points = []	
+		print("Reading all points...")
+
+		for point in point_records:	
+			# Take point coordinates
+			point = point[0]
+
+			x_coordinate = point[0] * x_scale + x_offset
+			y_coordinate = point[1] * y_scale + y_offset
+			z_coordinate = point[2] * z_scale + z_offset
+
+			# In interesting zone?
+
+			interest = False
+			for area in areas_list:
+				if load_info.is_collision(float(area[0]), float(area[1]), float(area[2]), float(area[3]), 
+					x_coordinate, y_coordinate, x_coordinate, y_coordinate):
+					interest = True
+					break
+
+			if interest == True:
+				red = str(point[10] / 65535)
+				green = str(point[11] / 65535)
+				blue = str(point[12] / 65535)
+
+				z_coordinate *= 1.85
+				z_coordinate -= 18
+
+				final_points.append([str(x_coordinate), str(z_coordinate), str(y_coordinate), red, green, blue])		
+
+		inFile.close()
+		os.system("rm " + lidar_file[:-3] + "LAS")
+
+		number_points = len(final_points)
+		print(number_points)
+		max_points = int(number_points / 2)
+		#max_points = number_points
+
+		count = 0
+		print("Taking " + str(max_points) + " points...")
+		while(count < max_points):
+			rand = random.randint(0, number_points - 1)
+			point = final_points[rand]
+
+			spheres += ("sphere {\n<" + point[0] + ", " + point[1] + ", " + point[2] + ">, 2\ntexture {\npigment { color rgb <" 
+				+ point[3] + ", " + point[4] + ", " + point[5] + "> }\n}\nno_shadow\n}\n")
+
+			count += 1	
+
+	return spheres		
+
+"""
 def generate_spheres(lidar_list, areas_list, cam):
 	print("Generating spheres...")
 	pos_v = cam.get_pos()
 	loo_v = cam.get_lookAt()
 	pos_to_loo = [loo_v.get_x() - pos_v.get_x(), loo_v.get_y() - pos_v.get_y(), loo_v.get_z() - pos_v.get_z()]
+	spheres = ""
 
 	for lidar_file in lidar_list:
+		lidar_file = lidar_file[0]
 		print("Generating spheres from " + lidar_file)
 		os.system(laszip + " -i " + lidar_file + " -o " + lidar_file[:-3] + "LAS")
 
@@ -68,7 +144,7 @@ def generate_spheres(lidar_list, areas_list, cam):
 
 			point_to_a = distance(point, a)
 
-			if point_to_a != 0 and interest == True and z_coordinate > 400:			
+			if point_to_a != 0 and interest == True:			
 				# Take another neighbour (must be not collinear)
 
 				found = False
@@ -116,7 +192,7 @@ def generate_spheres(lidar_list, areas_list, cam):
 					v2 = [x_b - x_coordinate, z_b - z_coordinate, y_b - y_coordinate]
 					normal = [v1[1] * v2[2] - v2[1] * v1[2], -(v1[0] * v2[2] - v2[0] * v1[2]), v1[0] * v2[1] - v2[0] * v1[1]]
 
-					if angle_between(pos_to_loo, normal) < 70:
+					if angle_between(pos_to_loo, normal) < 360:
 
 						# Point colors
 
@@ -125,6 +201,7 @@ def generate_spheres(lidar_list, areas_list, cam):
 						blue = str(point[12] / 65535)
 
 						z_coordinate *= 1.85
+						z_coordinate -= 18
 
 						final_points.append([str(x_coordinate), str(z_coordinate), str(y_coordinate), str(normal[0]), str(normal[1]),
 							str(normal[2]), red, green, blue]) 
@@ -149,18 +226,20 @@ def generate_spheres(lidar_list, areas_list, cam):
 
 		number_points = len(final_points)
 		print(number_points)
-		max_points = int(number_points / 5)
-		max_points = number_points
+		max_points = int(number_points / 2)
+		#max_points = number_points
 
-		spheres = ""
 		count = 0
 		print("Taking " + str(max_points) + " points...")
 		while(count < max_points):
 			rand = random.randint(0, number_points - 1)
 			point = final_points[rand]
 
-			spheres += ("disc {\n<" + point[0] + ", " + point[1] + ", " + point[2] + ">, <" 
-				+ point[3] + ", " + point[4] + ", " + point[5] + ">, 3\ntexture {\npigment { color rgb <" 
+			#spheres += ("disc {\n<" + point[0] + ", " + point[1] + ", " + point[2] + ">, <" 
+			#	+ point[3] + ", " + point[4] + ", " + point[5] + ">, 3\ntexture {\npigment { color rgb <" 
+			#	+ point[6] + ", " + point[7] + ", " + point[8] + "> }\n}\nno_shadow\n}\n")
+
+			spheres += ("sphere {\n<" + point[0] + ", " + point[1] + ", " + point[2] + ">, 2\ntexture {\npigment { color rgb <" 
 				+ point[6] + ", " + point[7] + ", " + point[8] + "> }\n}\nno_shadow\n}\n")
 
 			#final_points.append(point_records[rand][0])
@@ -198,4 +277,5 @@ def angle_between(v1, v2):
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)) * 180.0 / math.pi	
 
 if __name__ == "__main__":
-    generate_spheres()	
+    generate_spheres()
+"""    	
