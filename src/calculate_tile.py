@@ -1,6 +1,24 @@
 from pyproj import Proj, transform
 import math
 
+origin = [519098, 4769065]
+end = [870586, 4417577]
+
+def calculate_tile(x, y, z):
+	n = 2 ** z
+	xtile = int(n * (x - origin[0]) / (end[0] - origin[0]))
+	ytile = int(n * (y - origin[1]) / (end[1] - origin[1]))
+
+	return (xtile, ytile)
+
+def calculate_coordinates(xtile, ytile, z):
+	n = 2 ** z
+	x = origin[0] + (xtile * (end[0] - origin[0]) / n)
+	y = origin[1] + (ytile * (end[1] - origin[1]) / n)	 
+
+	return (x, y)
+
+"""
 def deg_to_num(lat_deg, lon_deg, zoom):
 	lat_rad = math.radians(lat_deg)
 	n = 2.0 ** float(zoom)
@@ -36,3 +54,4 @@ def calculate_tile(x, y, zoom):
 def calculate_coordinate(xtile, ytile, zoom):
 	x_trans, y_trans = num_to_deg(xtile, ytile, zoom)
 	return transform_to_utm(x_trans, y_trans)	
+"""

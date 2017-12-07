@@ -25,36 +25,22 @@ def render(c1, c2, dir_from, angle, result, zoom):
 		print(w_tiles)
 		print(h_tiles)
 
-		"""
 		# Calculate NW tile coordinate
 
 		print("NW")
-		c_nw_x, c_nw_y = calculate_tile.calculate_coordinate(tile1_x, tile1_y, zoom)
+		c_nw_x, c_nw_y = calculate_tile.calculate_coordinates(tile1_x, tile1_y, zoom)
 		print([c_nw_x, c_nw_y])
-
-		# Calculate SW tile coordinate
-
-		print("SW")
-		c_sw_x, c_sw_y = calculate_tile.calculate_coordinate(tile1_x, tile2_y + 1, zoom)
-		print([c_sw_x, c_sw_y])
-
-		# Calculate NE tile coordinate
-
-		print("NE")
-		c_ne_x, c_ne_y = calculate_tile.calculate_coordinate(tile2_x + 1, tile2_y, zoom)
-		print([c_ne_x, c_ne_y])
 
 		# Calculate SE tile coordinate
 
 		print("SE")
-		c_se_x, c_se_y = calculate_tile.calculate_coordinate(tile2_x + 1, tile2_y + 1, zoom)
+		c_se_x, c_se_y = calculate_tile.calculate_coordinates(tile2_x + 1, tile2_y + 1, zoom)
 		print([c_se_x, c_se_y])
-		"""
 
 		# Create camera, heighfields and spheres
 
-		#cam = cameraUtils.calculate_camera((c1_x, c1_y), (c2_x, c2_y), angle, dir_from)
-		cam = cameraUtils.calculate_camera(c1, c2, angle, dir_from)
+		cam = cameraUtils.calculate_camera((c_nw_x, c_nw_y), (c_se_x, c_se_y), angle, dir_from)
+		#cam = cameraUtils.calculate_camera(c1, c2, angle, dir_from)
 		heightfields = povray_writer.write_heightfields(mdt_list, orto_list) # Generate a string which contain the heightfields to pov file.
 		#spheres = read_lidar.generate_spheres(lidar_list, areas_list)
 		spheres = ""
@@ -62,6 +48,7 @@ def render(c1, c2, dir_from, angle, result, zoom):
 		# Generate povray file
 
 		tile_size_x = 256
+		tile_size_y = 256
 		tile_size_y = int(256 / cam.get_aspectRatio() + 0.5)
 
 		print(cam.get_aspectRatio())
@@ -74,7 +61,8 @@ def render(c1, c2, dir_from, angle, result, zoom):
 		# Rendering using new povray file
 
 		print("Rendering " + result)
-		os.system('povray +Irender.pov +O' + result + ' -D +W' + str(w) + ' +H' + str(h))
+		os.system('povray +Irender.pov +O' + result + ' -D +A +W' + str(w) + ' +H' + str(h))
+		#os.system('povray +Irender.pov +O' + result + ' -D +A +W2048 +H1240')
 		os.system('rm render.pov')
 		
 		t_render_f = time()
@@ -82,7 +70,6 @@ def render(c1, c2, dir_from, angle, result, zoom):
 
 		print("Rendering time: " + str(int(t_render / 60)) + "min " + str(int(t_render % 60)) + "s.")
 
-		#return ((c1_x, c1_y), (c2_x, c2_y), tile_size_x, tile_size_y, cam.get_aspectRatio())
 		return (tile_size_x, tile_size_y, cam.get_aspectRatio())
 	else:
 		print("Error: The zone to render must be smaller (orto_list > 10). Try with other coordinates.")
@@ -103,14 +90,14 @@ def tessellation(result, c1, c2, render_result, zoom):
 	os.system("convert " + result + " -crop " + tile_size_x + "x" + tile_size_y + " -set filename:tile \"%[fx:page.x/" 
 		+ tile_size_x + "+" + str(tile1_x) + "]_%[fx:page.y/" + tile_size_y + "+" + str(tile1_y) + "]\" +adjoin \"" 
 		+ app_directory + str(zoom) + "/map_%[filename:tile].png\"")
-	
+	"""
 	# -1 Zoom lvl
 		
 	tile1_x, tile1_y = calculate_tile.calculate_tile(c1[0], c1[1], zoom - 1)
 	tile2_x, tile2_y = calculate_tile.calculate_tile(c2[0], c2[1], zoom - 1)
 
-	w_tiles = tile2_x - tile1_x + 1
-	h_tiles = tile2_y - tile1_y + 1
+	w_tiles = tile2_x - tile1_x
+	h_tiles = tile2_y - tile1_y
 	print(w_tiles)
 	print(h_tiles)
 
@@ -122,9 +109,9 @@ def tessellation(result, c1, c2, render_result, zoom):
 	os.system("mkdir " + app_directory + str(zoom - 1))
 	os.system("convert " + result + " -resize " + str(w) + "x" + str(h) + " " + result)
 	os.system("convert " + result + " -crop " + tile_size_x + "x" + tile_size_y + " -set filename:tile \"%[fx:page.x/" 
-		+ tile_size_x + "+" + str(tile1_x) + "]_%[fx:page.y/" + tile_size_y + "+" + str(tile1_y) + "]\" +adjoin \"" 
+		+ tile_size_x + "+" + str(tile1_x + 1) + "]_%[fx:page.y/" + tile_size_y + "+" + str(tile1_y + 1) + "]\" +adjoin \"" 
 		+ app_directory + str(zoom - 1) + "/map_%[filename:tile].png\"")
-
+	"""
 	os.system("rm " + result)									
 	
 def main():
@@ -228,6 +215,8 @@ def main():
 				coordinates1 = coordinates.split()
 				coordinates1 = ["711500", "4670000"]
 				#coordinates1 = ["711500", "4667000"]
+				#coordinates1 = ["715000", "4670000"]
+				#coordinates1 = ["715000", "4667000"]
 
 				if (len(coordinates1) == 2 and float(coordinates1[0]) >= minX and float(coordinates1[0]) <= maxX and 
 						float(coordinates1[1]) >= minY and float(coordinates1[1]) <= maxY):
@@ -238,6 +227,8 @@ def main():
 					coordinates2 = coordinates.split()
 					coordinates2 = ["715000", "4667000"]
 					#coordinates2 = ["715000", "4664000"]
+					#coordinates2 = ["718500", "4667000"]
+					#coordinates2 = ["718500", "4664000"]
 
 					if (len(coordinates2) == 2 and float(coordinates2[0]) >= minX and float(coordinates2[0]) <= maxX and 
 							float(coordinates2[1]) >= minY and float(coordinates2[1]) <= maxY and coordinates1[0] < coordinates2[0]
