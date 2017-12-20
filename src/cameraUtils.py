@@ -37,11 +37,13 @@ def calculate_camera(xz1, xz2, angleDeg, direction):
 
 	initialUp = VectorXYZ(0, tan, 1)
 	initialUp = initialUp.normalize().mult(zSize).mult(sin)
-	upLength = initialUp.length()		
+	upLength = initialUp.length()
+
+	aspectRatio = xSize / upLength	
 
 	# setCamera(posX, posY, posZ, upX, upY, upZ, lookAtX, lookAtY, lookAtZ, rightX, aspectRatio)	
 	cam.setCamera(lonM - cameraOffsetX, heightCam + lookAtHeight, latM - cameraOffsetZ,
 		initialUp.get_x(), initialUp.get_y(), initialUp.get_z(), lonM, lookAtHeight,
-		latM, xSize, xSize / upLength)
+		latM, xSize, aspectRatio)
 
 	return cam

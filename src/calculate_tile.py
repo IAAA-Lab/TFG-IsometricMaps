@@ -1,20 +1,28 @@
 from pyproj import Proj, transform
 import math
 
-origin = [519098, 4769065]
-end = [870586, 4417577]
+origin = [399809, 4881610]
+end = [989876, 4291543] # 590067x590067m intermediate point -> 4586576,5
+
+coordinates1 = ["711500", "4670000"]
+coordinates2 = ["715000", "4667000"]
 
 def calculate_tile(x, y, z):
+	if x == end[0]:
+		x -= 1
+	if y == end[1]:
+		y += 1	
+
 	n = 2 ** z
 	xtile = int(n * (x - origin[0]) / (end[0] - origin[0]))
-	ytile = int(n * (y - origin[1]) / (end[1] - origin[1]))
+	ytile = int(n * (origin[1] - y) / (origin[1] - end[1]))
 
 	return (xtile, ytile)
 
 def calculate_coordinates(xtile, ytile, z):
 	n = 2 ** z
 	x = origin[0] + (xtile * (end[0] - origin[0]) / n)
-	y = origin[1] + (ytile * (end[1] - origin[1]) / n)	 
+	y = origin[1] - (ytile * (origin[1] - end[1]) / n) 	 
 
 	return (x, y)
 

@@ -61,7 +61,7 @@ def generate_spheres(lidar_list, areas_list):
 
 		number_points = len(final_points)
 		print(number_points)
-		max_points = int(number_points / 2)
+		max_points = int(number_points / 3)
 		#max_points = number_points
 
 		count = 0

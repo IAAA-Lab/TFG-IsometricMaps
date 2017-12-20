@@ -1,7 +1,31 @@
 from time import time
 import sys, argparse, heightfield, os, povray_writer, load_info, read_lidar, cameraUtils, calculate_tile
 
-def render(c1, c2, dir_from, angle, result, zoom):
+def tiles_to_render(c1, c2, zoom):
+	# Calculate tiles
+
+	tile1_x, tile1_y = calculate_tile.calculate_tile(c1[0], c1[1], zoom)
+	tile2_x, tile2_y = calculate_tile.calculate_tile(c2[0], c2[1], zoom)
+
+	w_tiles = tile2_x - tile1_x + 1
+	h_tiles = tile2_y - tile1_y + 1
+
+	if w_tiles != h_tiles:
+		tile_max = max(w_tiles, h_tiles)
+		w_tiles = tile_max
+		h_tiles = tile_max
+
+		tile2_x = tile1_x + w_tiles - 1
+		tile2_y = tile1_y + h_tiles - 1
+
+	# Calculate new coordinates
+
+	c_nw = calculate_tile.calculate_coordinates(tile1_x, tile1_y, zoom)
+	c_se = calculate_tile.calculate_coordinates(tile2_x + 1, tile2_y + 1, zoom)
+	
+	return ((tile1_x, tile1_y), (tile2_x, tile2_y), c_nw, c_se)
+
+def render(tile1, tile2, c1, c2, dir_from, angle, result):
 	t_render_i = time()
 
 	# Find mdts and ortophotos and write heighfields info 
@@ -10,59 +34,34 @@ def render(c1, c2, dir_from, angle, result, zoom):
 	orto_list = load_info.find_orto(c1[0], c1[1], c2[0], c2[1], mdt_list)
 	areas_list = load_info.find_a_interest(c1[0], c1[1], c2[0], c2[1])
 	lidar_list = load_info.find_lidar(areas_list)
-	#lidar_list = ["/home/pablo/Documentos/Universidad/TFG/TFG-IsometricMaps/LIDAR/PNOA_2010_LOTE1_ARA-NORTE_712-4670_ORT-CLA-COL.LAZ"]
 		
 	if len(orto_list) <= 10:
-		# Calculate tiles
-
-		tile1_x, tile1_y = calculate_tile.calculate_tile(c1[0], c1[1], zoom)
-		tile2_x, tile2_y = calculate_tile.calculate_tile(c2[0], c2[1], zoom)
-		print([tile1_x, tile1_y])
-		print([tile2_x, tile2_y])
-
-		w_tiles = tile2_x - tile1_x + 1
-		h_tiles = tile2_y - tile1_y + 1
-		print(w_tiles)
-		print(h_tiles)
-
-		# Calculate NW tile coordinate
-
-		print("NW")
-		c_nw_x, c_nw_y = calculate_tile.calculate_coordinates(tile1_x, tile1_y, zoom)
-		print([c_nw_x, c_nw_y])
-
-		# Calculate SE tile coordinate
-
-		print("SE")
-		c_se_x, c_se_y = calculate_tile.calculate_coordinates(tile2_x + 1, tile2_y + 1, zoom)
-		print([c_se_x, c_se_y])
-
 		# Create camera, heighfields and spheres
 
-		cam = cameraUtils.calculate_camera((c_nw_x, c_nw_y), (c_se_x, c_se_y), angle, dir_from)
-		#cam = cameraUtils.calculate_camera(c1, c2, angle, dir_from)
+		cam = cameraUtils.calculate_camera(c1, c2, angle, dir_from)
 		heightfields = povray_writer.write_heightfields(mdt_list, orto_list) # Generate a string which contain the heightfields to pov file.
 		#spheres = read_lidar.generate_spheres(lidar_list, areas_list)
+		#heightfields = ""
 		spheres = ""
 
 		# Generate povray file
 
 		tile_size_x = 256
-		tile_size_y = 256
 		tile_size_y = int(256 / cam.get_aspectRatio() + 0.5)
 
 		print(cam.get_aspectRatio())
 		povray_writer.write_povray_file(cam, heightfields, spheres)
+
+		w_tiles = tile2[0] - tile1[0] + 1
+		h_tiles = tile2[1] - tile1[1] + 1
+
 		w = tile_size_x * w_tiles
-		h = tile_size_y * h_tiles 
-		print(str(w))
-		print(str(h))
+		h = tile_size_y * h_tiles
 
 		# Rendering using new povray file
 
 		print("Rendering " + result)
 		os.system('povray +Irender.pov +O' + result + ' -D +A +W' + str(w) + ' +H' + str(h))
-		#os.system('povray +Irender.pov +O' + result + ' -D +A +W2048 +H1240')
 		os.system('rm render.pov')
 		
 		t_render_f = time()
@@ -70,26 +69,19 @@ def render(c1, c2, dir_from, angle, result, zoom):
 
 		print("Rendering time: " + str(int(t_render / 60)) + "min " + str(int(t_render % 60)) + "s.")
 
-		return (tile_size_x, tile_size_y, cam.get_aspectRatio())
+		return (tile_size_x, tile_size_y)
 	else:
 		print("Error: The zone to render must be smaller (orto_list > 10). Try with other coordinates.")
 
-def tessellation(result, c1, c2, render_result, zoom):
+def tessellation(result, tile1, tile_size_x, tile_size_y, zoom):
 	app_directory = "/home/pablo/Documentos/Universidad/TFG/strummerTFIU.github.io/"
 	print("Creating tiles...")
 
-	tile_size_x = str(render_result[0])
-	tile_size_y = str(render_result[1])
-	aspect_ratio = render_result[2]
-
-	# Principal zoom
-
-	tile1_x, tile1_y = calculate_tile.calculate_tile(c1[0], c1[1], zoom)
-
 	os.system("mkdir " + app_directory + str(zoom))
-	os.system("convert " + result + " -crop " + tile_size_x + "x" + tile_size_y + " -set filename:tile \"%[fx:page.x/" 
-		+ tile_size_x + "+" + str(tile1_x) + "]_%[fx:page.y/" + tile_size_y + "+" + str(tile1_y) + "]\" +adjoin \"" 
+	os.system("convert " + result + " -crop " + str(tile_size_x) + "x" + str(tile_size_y) + " -set filename:tile \"%[fx:page.x/" 
+		+ str(tile_size_x) + "+" + str(tile1[0]) + "]_%[fx:page.y/" + str(tile_size_y) + "+" + str(tile1[1]) + "]\" +adjoin \"" 
 		+ app_directory + str(zoom) + "/map_%[filename:tile].png\"")
+
 	"""
 	# -1 Zoom lvl
 		
@@ -112,7 +104,7 @@ def tessellation(result, c1, c2, render_result, zoom):
 		+ tile_size_x + "+" + str(tile1_x + 1) + "]_%[fx:page.y/" + tile_size_y + "+" + str(tile1_y + 1) + "]\" +adjoin \"" 
 		+ app_directory + str(zoom - 1) + "/map_%[filename:tile].png\"")
 	"""
-	os.system("rm " + result)									
+	#os.system("rm " + result)									
 	
 def main():
 	# Arguments
@@ -164,6 +156,10 @@ def main():
 			maxX = 704400 + 5760 * 5 - offset # Se comprueba en la lista que valores serían los mayores y cuales los menores
 			minY = 4652400 + offset # Se suma el offset para que luego los datos concuerden al aplicarle el offset
 			maxY = 4671000 + 4000 * 5 - offset
+			minX = 500000
+			maxX = 900000
+			minY = 4000000
+			maxY = 5000000
 
 			if args.all:
 				os.system('mkdir result_dir')
@@ -213,6 +209,7 @@ def main():
 					+ "and max for the coordinates, for upper left vertex (" + str(minX) + " <= X1 <= " + str(maxX) + " " + str(minY) 
 					+ " <= Y1 <= " + str(maxY) + "): ")
 				coordinates1 = coordinates.split()
+				#coordinates1 = ["519098", "4769065"]
 				coordinates1 = ["711500", "4670000"]
 				#coordinates1 = ["711500", "4667000"]
 				#coordinates1 = ["715000", "4670000"]
@@ -225,6 +222,7 @@ def main():
 						+ "and max for the coordinates, for bottom right vertex (" + coordinates1[0] + " <= X2 <= " + str(maxX) + " " + str(minY) 
 						+ " <= Y2 <= " + coordinates1[1] + "): ")
 					coordinates2 = coordinates.split()
+					#coordinates2 = ["870586", "4417577"]
 					coordinates2 = ["715000", "4667000"]
 					#coordinates2 = ["715000", "4664000"]
 					#coordinates2 = ["718500", "4667000"]
@@ -243,8 +241,9 @@ def main():
 
 						result = "./result.png"
 
-						render_result = render(coordinates1, coordinates2, args.dir_from, args.angle, result, int(args.zoom))
-						tessellation(result, coordinates1, coordinates2, render_result, int(args.zoom))
+						tile1, tile2, c_nw, c_se = tiles_to_render(coordinates1, coordinates2, int(args.zoom))
+						tile_size_x, tile_size_y = render(tile1, tile2, c_nw, c_se, args.dir_from, args.angle, result)
+						tessellation(result, tile1, tile_size_x, tile_size_y, args.zoom)
 
 						print("DONE!")	
 					else:
