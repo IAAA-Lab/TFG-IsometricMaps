@@ -31,7 +31,7 @@ def calculate_camera(xz1, xz2, angleDeg, direction):
 		xSize = zSize
 		zSize = aux
 
-	if (direction == 'N') or (direction == 'E'):
+	if (direction == 'S') or (direction == 'W'):
 		cameraOffsetX = - cameraOffsetX
 		cameraOffsetZ = - cameraOffsetZ
 

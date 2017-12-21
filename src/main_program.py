@@ -25,7 +25,7 @@ def tiles_to_render(c1, c2, zoom):
 	
 	return ((tile1_x, tile1_y), (tile2_x, tile2_y), c_nw, c_se)
 
-def render(tile1, tile2, c1, c2, dir_from, angle, result):
+def render(tile1, tile2, c1, c2, dir_view, angle, result):
 	t_render_i = time()
 
 	# Find mdts and ortophotos and write heighfields info 
@@ -38,7 +38,7 @@ def render(tile1, tile2, c1, c2, dir_from, angle, result):
 	if len(orto_list) <= 10:
 		# Create camera, heighfields and spheres
 
-		cam = cameraUtils.calculate_camera(c1, c2, angle, dir_from)
+		cam = cameraUtils.calculate_camera(c1, c2, angle, dir_view)
 		heightfields = povray_writer.write_heightfields(mdt_list, orto_list) # Generate a string which contain the heightfields to pov file.
 		#spheres = read_lidar.generate_spheres(lidar_list, areas_list)
 		#heightfields = ""
@@ -73,14 +73,15 @@ def render(tile1, tile2, c1, c2, dir_from, angle, result):
 	else:
 		print("Error: The zone to render must be smaller (orto_list > 10). Try with other coordinates.")
 
-def tessellation(result, tile1, tile_size_x, tile_size_y, zoom):
+def tessellation(result, tile1, tile_size_x, tile_size_y, zoom, dir_view):
 	app_directory = "/home/pablo/Documentos/Universidad/TFG/strummerTFIU.github.io/"
 	print("Creating tiles...")
 
-	os.system("mkdir " + app_directory + str(zoom))
+	os.system("mkdir " + app_directory + dir_view)
+	os.system("mkdir " + app_directory + dir_view + "/" + str(zoom))
 	os.system("convert " + result + " -crop " + str(tile_size_x) + "x" + str(tile_size_y) + " -set filename:tile \"%[fx:page.x/" 
 		+ str(tile_size_x) + "+" + str(tile1[0]) + "]_%[fx:page.y/" + str(tile_size_y) + "+" + str(tile1[1]) + "]\" +adjoin \"" 
-		+ app_directory + str(zoom) + "/map_%[filename:tile].png\"")
+		+ app_directory + dir_view + "/" + str(zoom) + "/map_%[filename:tile].png\"")
 
 	"""
 	# -1 Zoom lvl
@@ -104,7 +105,7 @@ def tessellation(result, tile1, tile_size_x, tile_size_y, zoom):
 		+ tile_size_x + "+" + str(tile1_x + 1) + "]_%[fx:page.y/" + tile_size_y + "+" + str(tile1_y + 1) + "]\" +adjoin \"" 
 		+ app_directory + str(zoom - 1) + "/map_%[filename:tile].png\"")
 	"""
-	#os.system("rm " + result)									
+	os.system("rm " + result)									
 	
 def main():
 	# Arguments
@@ -115,7 +116,7 @@ def main():
 	parser.add_argument("png_directory", help="PNG files transformed destination directory.")
 	parser.add_argument("orto_directory", help="Ortophotos files directory.")
 	parser.add_argument("lidar_directory", help="Directory of LAZ files.")
-	parser.add_argument("dir_from", help="From direction of the view (only N, S, E or W).")
+	parser.add_argument("dir_view", help="Direction of the view (only N, S, E or W).")
 	parser.add_argument("angle", help="Angle of the view (only 45 or 30).")
 	parser.add_argument("zoom", help="Zoom.")
 
@@ -128,7 +129,7 @@ def main():
 	args = parser.parse_args()
 
 	if (args.angle == "30") or (args.angle == "45"):
-		if (args.dir_from == 'S') or (args.dir_from == 'N') or (args.dir_from == 'W') or (args.dir_from == 'E'):
+		if (args.dir_view == 'S') or (args.dir_view == 'N') or (args.dir_view == 'W') or (args.dir_view == 'E'):
 
 			if args.mdt_directory[-1] != "/":
 				args.mdt_directory += "/"
@@ -177,12 +178,12 @@ def main():
 					
 					while(y1 - dist_y > minY): # Recorre las Y de mayor a menor
 						y_number += 1
-						render([x1, y1], [x1 + dist_x, y1 - dist_y], args.dir_from, args.angle, 
+						render([x1, y1], [x1 + dist_x, y1 - dist_y], args.dir_view, args.angle, 
 							"./result_dir/result_" + str(x_number) + "_" + str(y_number) + ".png")
 						y1 -= dist_y
 
 					y_number += 1	
-					render([x1, y1], [x1 + dist_x, minY], args.dir_from, args.angle, 
+					render([x1, y1], [x1 + dist_x, minY], args.dir_view, args.angle, 
 						"./result_dir/result_" + str(x_number) + "_" + str(y_number) + ".png") # La última con la segunda coordenada la menor Y
 					x1 += dist_x	
 
@@ -195,12 +196,12 @@ def main():
 
 				while(y1 - dist_y > minY):
 					y_number += 1
-					render([x1, y1], [maxX, y1 - dist_y], args.dir_from, args.angle, 
+					render([x1, y1], [maxX, y1 - dist_y], args.dir_view, args.angle, 
 						"./result_dir/result_" + str(x_number) + "_" + str(y_number) + ".png")
 					y1 -= dist_y
 
 				y_number += 1	
-				render([x1, y1], [maxX, minY], args.dir_from, args.angle, 
+				render([x1, y1], [maxX, minY], args.dir_view, args.angle, 
 					"./result_dir/result_" + str(x_number) + "_" + str(y_number) + ".png")
 			else:
 				# Ask for coordinates
@@ -242,8 +243,8 @@ def main():
 						result = "./result.png"
 
 						tile1, tile2, c_nw, c_se = tiles_to_render(coordinates1, coordinates2, int(args.zoom))
-						tile_size_x, tile_size_y = render(tile1, tile2, c_nw, c_se, args.dir_from, args.angle, result)
-						tessellation(result, tile1, tile_size_x, tile_size_y, args.zoom)
+						tile_size_x, tile_size_y = render(tile1, tile2, c_nw, c_se, args.dir_view, args.angle, result)
+						tessellation(result, tile1, tile_size_x, tile_size_y, args.zoom, args.dir_view)
 
 						print("DONE!")	
 					else:
@@ -251,7 +252,7 @@ def main():
 				else:
 					print("Error: Introduce UTM coordinates correctly.")				
 		else:	
-			print("ERROR: dir_from must be N, S, W or E.")
+			print("ERROR: dir_view must be N, S, W or E.")
 	else:
 		print("ERROR: angle must be 45 or 30.")	
 
