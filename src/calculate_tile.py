@@ -26,6 +26,21 @@ def calculate_coordinates(xtile, ytile, z):
 
 	return (x, y)
 
+def tile_to_south(tile, z):
+	max_tile = 2 ** z - 1
+
+	return (max_tile - tile[0], max_tile - tile[1])
+
+def tile_to_east(tile, z):
+	max_tile = 2 ** z - 1
+
+	return (tile[1], max_tile - tile[0])
+
+def tile_to_west(tile, z):
+	max_tile = 2 ** z - 1
+
+	return (max_tile - tile[1], tile[0])
+
 """
 def deg_to_num(lat_deg, lon_deg, zoom):
 	lat_rad = math.radians(lat_deg)

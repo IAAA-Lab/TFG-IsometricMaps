@@ -25,6 +25,16 @@ def tiles_to_render(c1, c2, zoom):
 	
 	return ((tile1_x, tile1_y), (tile2_x, tile2_y), c_nw, c_se)
 
+def dir_view_tile(tile, dir_view, zoom):
+	if dir_view == 'S':
+		return calculate_tile.tile_to_south(tile, zoom)
+	elif dir_view == 'E':
+		return calculate_tile.tile_to_east(tile, zoom)
+	elif dir_view == 'W':
+		return calculate_tile.tile_to_west(tile, zoom)		
+	else:
+		return tile	
+
 def render(tile1, tile2, c1, c2, dir_view, angle, result):
 	t_render_i = time()
 
@@ -243,8 +253,26 @@ def main():
 						result = "./result.png"
 
 						tile1, tile2, c_nw, c_se = tiles_to_render(coordinates1, coordinates2, int(args.zoom))
+
+						if args.dir_view == 'S':
+							tile_init = calculate_tile.tile_to_south(tile2, int(args.zoom))
+						elif args.dir_view == 'E':
+							tile1_aux = calculate_tile.tile_to_east(tile1, int(args.zoom))
+							tile2_aux = calculate_tile.tile_to_east(tile2, int(args.zoom))
+
+							tile_init = (tile1_aux[0], tile2_aux[1])
+						elif args.dir_view == 'W':
+							tile1_aux = calculate_tile.tile_to_west(tile1, int(args.zoom))
+							tile2_aux = calculate_tile.tile_to_west(tile2, int(args.zoom))		
+							
+							tile_init = (tile2_aux[0], tile1_aux[1])
+						else:
+							tile_init = tile1	
+						
+						#tile_init = dir_view_tile(tile2, args.dir_view, int(args.zoom))
+
 						tile_size_x, tile_size_y = render(tile1, tile2, c_nw, c_se, args.dir_view, args.angle, result)
-						tessellation(result, tile1, tile_size_x, tile_size_y, args.zoom, args.dir_view)
+						tessellation(result, tile_init, tile_size_x, tile_size_y, args.zoom, args.dir_view)
 
 						print("DONE!")	
 					else:
