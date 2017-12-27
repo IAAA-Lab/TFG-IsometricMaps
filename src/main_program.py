@@ -83,15 +83,16 @@ def render(tile1, tile2, c1, c2, dir_view, angle, result):
 	else:
 		print("Error: The zone to render must be smaller (orto_list > 10). Try with other coordinates.")
 
-def tessellation(result, tile1, tile_size_x, tile_size_y, zoom, dir_view):
+def tessellation(result, tile1, tile_size_x, tile_size_y, zoom, dir_view, angle):
 	app_directory = "/home/pablo/Documentos/Universidad/TFG/strummerTFIU.github.io/"
 	print("Creating tiles...")
 
-	os.system("mkdir " + app_directory + dir_view)
-	os.system("mkdir " + app_directory + dir_view + "/" + str(zoom))
+	os.system("mkdir " + app_directory + angle)
+	os.system("mkdir " + app_directory + angle + "/" + dir_view)
+	os.system("mkdir " + app_directory + angle + "/" + dir_view + "/" + str(zoom))
 	os.system("convert " + result + " -crop " + str(tile_size_x) + "x" + str(tile_size_y) + " -set filename:tile \"%[fx:page.x/" 
 		+ str(tile_size_x) + "+" + str(tile1[0]) + "]_%[fx:page.y/" + str(tile_size_y) + "+" + str(tile1[1]) + "]\" +adjoin \"" 
-		+ app_directory + dir_view + "/" + str(zoom) + "/map_%[filename:tile].png\"")
+		+ app_directory + angle + "/" + dir_view + "/" + str(zoom) + "/map_%[filename:tile].png\"")
 
 	"""
 	# -1 Zoom lvl
@@ -272,7 +273,7 @@ def main():
 						#tile_init = dir_view_tile(tile2, args.dir_view, int(args.zoom))
 
 						tile_size_x, tile_size_y = render(tile1, tile2, c_nw, c_se, args.dir_view, args.angle, result)
-						tessellation(result, tile_init, tile_size_x, tile_size_y, args.zoom, args.dir_view)
+						tessellation(result, tile_init, tile_size_x, tile_size_y, args.zoom, args.dir_view, args.angle)
 
 						print("DONE!")	
 					else:
