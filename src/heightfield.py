@@ -33,7 +33,9 @@ def transform_file_to_heightfield(file_in, file_out, maxHeight):
 	aux = line.split()
 	info.write(aux[1] + "\n")
 	
-	asc.readline() #nodata_value
+	line = asc.readline() #nodata_value
+	aux = line.split()
+	nodata = int(aux[1])
 
 	print("Reading points...")
 
@@ -54,7 +56,9 @@ def transform_file_to_heightfield(file_in, file_out, maxHeight):
 	for line in lines:
 		points = line.split()
 		newpoints = [float(x) for x in points]
+		newpoints = [0 if x == nodata else x for x in newpoints]
 		newpoints = [x*maxNum/maxHeight for x in newpoints]
+		newpoints = [maxNum if x > maxNum else x for x in newpoints]
 		newpoints = [int(x) for x in newpoints]
 		pointsList.append(newpoints)
 
