@@ -34,7 +34,6 @@ def load_mdt_info(png_directory):
 def find_mdt(x1, y1, x2, y2):
 	mdts = []
 	f = open(m_file, "r")
-	y2 = y2 - 1500
 
 	for line in f:
 		info = line.split()
@@ -63,7 +62,7 @@ def load_orto_info(orto_directory):
 				for dAux in dirs2:
 					for base3, dirs3, files3 in os.walk(orto_directory + d + "/" + dAux):
 						for orto_file in files3:
-							if orto_file[-4:] == ".jpg" or orto_file[-4:] == ".tif":
+							if orto_file[-4:] == ".jpg" or orto_file[-4:] == ".png":
 								image = orto_directory + d + "/" + dAux + "/" + orto_file
 								width, height = Image.open(image).size	
 							if orto_file[-4:] == ".jgw":
@@ -115,7 +114,6 @@ def find_orto(x1, y1, x2, y2, mdts):
 			my2 = my1 + float(info[3]) * float(info[7]) + float(info[3])
 			
 			if is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
-				# TODO: Lista diferente para 25831? Concatenarla al inicio (o al final) de ortos para forzar que se incluyan antes o después (depende como pinte el povray) y se monten correctamente con las ortos en 25830. Mirar como montar entre 2 de 25831.
 				ortos.append(info)				
 
 	f.close()
@@ -193,7 +191,6 @@ def find_a_interest(x1, y1, x2, y2):
 	return areas			
 
 def is_collision(x1, y1, x2, y2, mx1, my1, mx2, my2):
-	y2 -= 1500
 	# X axis
 	if ((x2 < mx1) or (x1 > mx2)):
 		return False

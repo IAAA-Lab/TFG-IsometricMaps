@@ -5,15 +5,11 @@ def write_heightfields(mdt_list, orto_list):
 	Image.MAX_IMAGE_PIXELS = 1000000000 # To hide PIL warning
 	heightfields_to_pov = ""
 	l_length = len(mdt_list)
-	count = 0
+	first = True
+
+	mdt_list.sort(reverse=True, key=lambda mdt: mdt[0])
 
 	for mdt_file in mdt_list:
-		count += 1
-		if count == len(mdt_list):
-			last_mdt = True
-		else:
-			last_mdt = False	
-
 		height_field = ("height_field {\npng \"" + mdt_file[0] + "\"\nsmooth\nscale <" + mdt_file[1] 
 			+ "*" + mdt_file[5] + ", 4000, " + mdt_file[2] + "*" + mdt_file[5] + ">\ntranslate <" 
 			+ mdt_file[3] + ", 0, " + mdt_file[4] + "> + <-2.5, 0, -2.5>\n")
@@ -21,7 +17,7 @@ def write_heightfields(mdt_list, orto_list):
 		# Add all ortophotos of specified mdt
 
 		for orto_file in orto_list:
-			if last_mdt == True:
+			if first == True:
 				if (load_info.is_collision(float(mdt_file[3]), float(mdt_file[4]) + float(mdt_file[2]) * float(mdt_file[5]), float(mdt_file[3])
 					+ float(mdt_file[1]) * float(mdt_file[5]), float(mdt_file[4]), float(orto_file[4]), float(orto_file[5]), float(orto_file[4])
 					+ float(orto_file[2]) * float(orto_file[6]), float(orto_file[5]) + float(orto_file[3]) * float(orto_file[7])) == True):
@@ -38,12 +34,12 @@ def write_heightfields(mdt_list, orto_list):
 				for base, dirs, files in os.walk(orto_file[1]):
 					image_format = ""
 					for f in files:
-						if f[-4:] == ".jpg" or f[-4:] == ".tif":
+						if f[-4:] == ".jpg" or f[-4:] == ".png":
 							image = orto_file[1] + "/" + f
 							if f[-4:] == ".jpg":
 								image_format = "jpeg"
 							else:
-								image_format = "tiff"	
+								image_format = "png"	
 
 				xSize = float(orto_file[2]) * float(orto_file[6])
 				zSize = float(orto_file[3]) * -float(orto_file[7])
@@ -54,10 +50,11 @@ def write_heightfields(mdt_list, orto_list):
 					+ "\nscale <" + str(xSize) + ", " + str(zSize) +", 1>\nrotate x*90\ntranslate " 
 					+ "<" + str(xMin) + ", 0, " + str(zMin) + ">\n")
 
-				height_field += write_texture_finish()
+				height_field += write_texture_finish()		
 
 		height_field += ("}\n")		
-		heightfields_to_pov += height_field	
+		heightfields_to_pov += height_field
+		first = False	
 
 	return heightfields_to_pov			
 

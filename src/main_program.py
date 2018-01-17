@@ -38,14 +38,33 @@ def dir_view_tile(tile, dir_view, zoom):
 		return tile	
 
 def render(tile1, tile2, c1, c2, dir_view, angle, result, lidar):
+	# Apply a offset
+
+	off_c1_0 = 0
+	off_c1_1 = 0
+	off_c2_0 = 0
+	off_c2_1 = 0
+	if dir_view == 'N':
+		off_c1_1 = 500
+		off_c2_1 = -2500
+	elif dir_view == 'S':
+		off_c1_1 = 2500
+		off_c2_1 = -500
+	elif dir_view == 'E':
+		off_c1_0 = -2500
+		off_c2_0 = 500
+	else:
+		off_c1_0 = -500
+		off_c2_0 = 2500			
+
 	# Find mdts and ortophotos and write heighfields info 
 
-	mdt_list = load_info.find_mdt(c1[0], c1[1], c2[0], c2[1])
+	mdt_list = load_info.find_mdt(c1[0] + off_c1_0, c1[1] + off_c1_1, c2[0] + off_c2_0, c2[1] + off_c2_1)
 	if len(mdt_list) == 0:
 		return ("null", "null")
 
-	orto_list = load_info.find_orto(c1[0], c1[1], c2[0], c2[1], mdt_list)
-	areas_list = load_info.find_a_interest(c1[0], c1[1], c2[0], c2[1])
+	orto_list = load_info.find_orto(c1[0] + off_c1_0, c1[1] + off_c1_1, c2[0] + off_c2_0, c2[1] + off_c2_1, mdt_list)
+	areas_list = load_info.find_a_interest(c1[0] + off_c1_0, c1[1] + off_c1_1, c2[0] + off_c2_0, c2[1] + off_c2_1)
 	lidar_list = load_info.find_lidar(areas_list)
 		
 	if len(orto_list) <= 10:
@@ -185,8 +204,10 @@ def main():
 					tile1_y = iTile_z5_y * (2 ** (int(args.zoom) - 5))
 					tile2_x = fTile_z5_x * (2 ** (int(args.zoom) - 5))
 					tile2_y = fTile_z5_y * (2 ** (int(args.zoom) - 5))
-					tile1_x = 172
-					tile2_x = 191 
+					#tile1_x = 286
+					#tile2_x = 287
+					#tile1_y = 130
+					#tile2_y = 131 
 
 					result = "./result.png"
 
@@ -194,15 +215,6 @@ def main():
 						n_tiles = 2
 					else:
 						n_tiles = 1	
-
-					"""	
-					tile1, tile2, c_nw, c_se = tiles_to_render((minX, maxY), (maxX, minY), int(args.zoom))
-
-					tile1_x = tile1[0]
-					tile1_y = tile1[1]
-					tile2_x = tile2[0]
-					tile2_y = tile2[1]
-					"""
 
 					x_number = 0
 
@@ -225,7 +237,23 @@ def main():
 							if tile_size_x == "null" and tile_size_y == "null":
 								print("ERROR: Nothing to render. Continuing...")
 							else:
-								tessellation(result, (aux1_x, aux1_y), tile_size_x, tile_size_y, args.zoom, args.dir_view, args.angle, dist_tile)
+								#print("NOPE")
+								if args.dir_view == 'S':
+									tile_init = calculate_tile.tile_to_south((aux1_x + n_tiles - 1, aux1_y + n_tiles - 1), int(args.zoom))
+								elif args.dir_view == 'E':
+									tile1_aux = calculate_tile.tile_to_east((aux1_x, aux1_y), int(args.zoom))
+									tile2_aux = calculate_tile.tile_to_east((aux1_x + n_tiles - 1, aux1_y + n_tiles - 1), int(args.zoom))
+
+									tile_init = (tile1_aux[0], tile2_aux[1])
+								elif args.dir_view == 'W':
+									tile1_aux = calculate_tile.tile_to_west((aux1_x, aux1_y), int(args.zoom))
+									tile2_aux = calculate_tile.tile_to_west((aux1_x + n_tiles - 1, aux1_y + n_tiles - 1), int(args.zoom))		
+									
+									tile_init = (tile2_aux[0], tile1_aux[1])
+								else:
+									tile_init = (aux1_x, aux1_y)
+
+								tessellation(result, tile_init, tile_size_x, tile_size_y, args.zoom, args.dir_view, args.angle, dist_tile)
 
 							y_number += n_tiles
 
