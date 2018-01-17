@@ -1,11 +1,7 @@
-from pyproj import Proj, transform
 import math
 
 origin = [399809, 4881610]
 end = [989876, 4291543] # 590067x590067m intermediate point -> 4586576,5
-
-coordinates1 = ["711500", "4670000"]
-coordinates2 = ["715000", "4667000"]
 
 def calculate_tile(x, y, z):
 	if x == end[0]:
@@ -41,40 +37,17 @@ def tile_to_west(tile, z):
 
 	return (max_tile - tile[1], tile[0])
 
-"""
-def deg_to_num(lat_deg, lon_deg, zoom):
-	lat_rad = math.radians(lat_deg)
-	n = 2.0 ** float(zoom)
-	xtile = int((lon_deg + 180.0) / 360.0 * n)
-	ytile = int((1.0 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2.0 * n)
+def tile_from_south(tile, z):
+	max_tile = 2 ** z - 1
 
-	return (xtile, ytile)
+	return (max_tile - tile[0], max_tile - tile[1])
 
-def num_to_deg(xtile, ytile, zoom):
-	n = 2.0 ** zoom
-	lon_deg = xtile / n * 360.0 - 180.0
-	lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
-	lat_deg = math.degrees(lat_rad)
-	
-	return (lon_deg, lat_deg)	
-	
-def transform_to_deg(x, y):
-	WGS84 = Proj(init='EPSG:4326')
-	inp = Proj(init='EPSG:25830')
-	
-	return transform(inp, WGS84, x, y)
+def tile_from_east(tile, z):
+	max_tile = 2 ** z - 1
 
-def transform_to_utm(x, y):
-	WGS84 = Proj(init='EPSG:4326')
-	inp = Proj(init='EPSG:25830')
+	return (max_tile - tile[1], tile[0])
 
-	return transform(WGS84, inp, x, y)
+def tile_from_west(tile, z):
+	max_tile = 2 ** z - 1
 
-def calculate_tile(x, y, zoom):
-	x_trans, y_trans = transform_to_deg(x,y)
-	return deg_to_num(y_trans, x_trans, zoom)
-
-def calculate_coordinate(xtile, ytile, zoom):
-	x_trans, y_trans = num_to_deg(xtile, ytile, zoom)
-	return transform_to_utm(x_trans, y_trans)	
-"""
+	return (tile[1], max_tile - tile[0])	
