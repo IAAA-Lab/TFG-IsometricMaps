@@ -1,6 +1,10 @@
 import sys, png
 
 def transform_file_to_heightfield(file_in, file_out, maxHeight):
+	"""
+	Create PNG and TXT file from ASC file passed as parameter.
+	"""
+	
 	print("Opening " + file_in)
 
 	maxNum = 65535

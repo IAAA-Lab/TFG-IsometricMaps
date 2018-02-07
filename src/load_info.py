@@ -148,7 +148,7 @@ def load_lidar_info(lidar_directory):
 	f.close()
 	print("Load successful")
 
-def find_lidar(areas):
+def find_lidar(areas, c1, c2):
 	lidars = []
 	f = open(l_file, "r")
 
@@ -164,8 +164,9 @@ def find_lidar(areas):
 
 		for area in areas:
 			if is_collision(float(area[0]), float(area[1]), float(area[2]), float(area[3]), mx1, my1, mx2, my2):
-				lidars.append(info)
-				break
+				if is_collision(float(c1[0]), float(c1[1]), float(c2[0]), float(c2[1]), mx1, my1, mx2, my2):
+					lidars.append(info)
+					break
 		
 	f.close()
 

@@ -5,6 +5,23 @@ from camera import Camera
 from vector_XYZ import VectorXYZ
 
 def calculate_camera(xz1, xz2, angleDeg, direction):
+	"""
+	Create a Camera object with the data passed as parameters.
+
+	Normal test
+	>>> cam = calculate_camera((700000, 4140000), (702000, 4137000), '45', 'N')
+	>>> cam.get_pos().toString()
+	'<701000.0, 11200, 4128500.0>'
+	>>> cam.get_up().toString()
+	'<0.0, 1499.9999999999998, 1500.0>'
+	>>> cam.get_lookAt().toString()
+	'<701000.0, 1200, 4138500.0>'
+	>>> cam.get_right().toString()
+	'<2000, 0, 0>'
+	>>> cam.get_aspectRatio()
+	0.9428090415820635
+	"""
+	
 	cam = Camera()
 
 	heightCam = 10000
