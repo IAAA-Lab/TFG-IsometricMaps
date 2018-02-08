@@ -5,12 +5,24 @@ import sys, argparse, heightfield, os, povray_writer, load_info, read_lidar, cam
 #/media/pablo/280F8D1D0A5B8545/TFG_files/strummerTFIU.github.io/
 
 def tiles_to_render(c1, c2, zoom):
+	"""
+	Return the tiles needed to render the scene and the limit coordinates.
+
+	Normal test
+	>>> tiles_to_render((700000, 4600000), (702000, 4602000), 8)
+	((130, 122), (131, 123), (699452.3984375, 4600406.1953125), (704062.296875, 4595796.296875))
+
+	Over limit test
+	>>> tiles_to_render((700000, 4600000), (2702000, 4602000), 8)
+	('null', 'null', 'null', 'null')
+	"""
+
 	# Calculate tiles
 
 	tile1_x, tile1_y = calculate_tile.calculate_tile(c1[0], c1[1], zoom)
 	tile2_x, tile2_y = calculate_tile.calculate_tile(c2[0], c2[1], zoom)
 
-	if tile1_x == 'null' or tile_1_y == 'null' or tile2_x == 'null' or tile2_y == 'null':
+	if tile1_x == 'null' or tile1_y == 'null' or tile2_x == 'null' or tile2_y == 'null':
 		return ('null', 'null', 'null', 'null') 
 
 	w_tiles = tile2_x - tile1_x + 1
@@ -35,6 +47,13 @@ def tiles_to_render(c1, c2, zoom):
 	return ((tile1_x, tile1_y), (tile2_x, tile2_y), c_nw, c_se)
 
 def dir_view_tile(tile, dir_view, zoom):
+	"""
+	Transform north tile number to specified POV tile number.
+
+	>>> dir_view_tile((222, 111), 'E', 9)
+	(111, 289)
+	"""
+
 	if dir_view == 'S':
 		return calculate_tile.tile_to_south(tile, zoom)
 	elif dir_view == 'E':
@@ -45,6 +64,9 @@ def dir_view_tile(tile, dir_view, zoom):
 		return tile	
 
 def render(tile1, tile2, c1, c2, dir_view, angle, result, lidar):
+	"""
+	Generate the POV-Ray file which represents the scene passed as parameters.
+	"""
 	# Apply a offset
 
 	off_c1_0 = 0
@@ -108,6 +130,9 @@ def render(tile1, tile2, c1, c2, dir_view, angle, result, lidar):
 		print("Error: The zone to render must be smaller (orto_list > 10). Try with other coordinates.")
 
 def tessellation(result, tile1, tile_size_x, tile_size_y, w_tiles, zoom, dir_view, angle, dist_tile):
+	"""
+	Create tiles for a few zooms and give them a number. 
+	"""
 	if dist_tile[-1] != "/":
 		dist_tile += "/"
 	
@@ -145,7 +170,7 @@ def tessellation(result, tile1, tile_size_x, tile_size_y, w_tiles, zoom, dir_vie
 		aux1_x = aux1_x / 2
 		aux1_y = aux1_y / 2
 		
-	os.system("rm " + result)									
+	#os.system("rm " + result)									
 
 def main():
 	# Arguments
