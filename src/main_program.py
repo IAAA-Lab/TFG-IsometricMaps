@@ -161,8 +161,8 @@ def tessellation(result, tile1, tile_size_x, tile_size_y, w_tiles, zoom, dir_vie
 		os.system("mkdir " + dist_tile + angle + "/" + dir_view + "/" + str(aux_zoom) + '> /dev/null 2>&1')
 		os.system("convert " + result + " -resize " + str(w) + "x" + str(h) + " " + result)
 		os.system("convert " + result + " -crop " + str(tile_size_x) + "x" + str(tile_size_y) + " -set filename:tile \"%[fx:page.x/" 
-		+ str(tile_size_x) + "+" + str(aux1_x) + "]_%[fx:page.y/" + str(tile_size_y) + "+" + str(aux1_y) + "]\" +adjoin \"" 
-		+ dist_tile + angle + "/" + dir_view + "/" + str(aux_zoom) + "/map_%[filename:tile].png\"")
+			+ str(tile_size_x) + "+" + str(aux1_x) + "]_%[fx:page.y/" + str(tile_size_y) + "+" + str(aux1_y) + "]\" +adjoin \"" 
+			+ dist_tile + angle + "/" + dir_view + "/" + str(aux_zoom) + "/map_%[filename:tile].png\"")
 
 		count -= 1
 		aux_zoom -= 1
@@ -170,7 +170,7 @@ def tessellation(result, tile1, tile_size_x, tile_size_y, w_tiles, zoom, dir_vie
 		aux1_x = aux1_x / 2
 		aux1_y = aux1_y / 2
 		
-	#os.system("rm " + result)									
+	os.system("rm " + result)									
 
 def main():
 	# Arguments
@@ -267,6 +267,73 @@ def main():
 							tile_1 = tile_init
 							tile_2 = tile_end
 						
+						tile_1 = [x - 1 if x % 2 != 0 else x for x in tile_1]
+						tile_2 = [x - 1 if x % 2 == 0 else x for x in tile_2]
+						
+						tile1_x = tile_1[0]
+						tile1_y = tile_1[1]
+						tile2_x = tile_2[0]
+						tile2_y = tile_2[1]
+						
+						n_tiles = 2 ** (int(args.zoom) - 8)
+
+						print([tile1_x, tile1_y])
+						print([tile2_x, tile2_y])
+						while tile1_x % n_tiles != 0:
+							tile1_x -= 1
+						while tile1_y % n_tiles != 0:
+							tile1_y -= 1	
+						while tile2_x % n_tiles == 0:
+							tile2_x -= 1
+						while tile2_x % n_tiles == 0:
+							tile2_x -= 1
+						print([tile1_x, tile1_y])
+						print([tile2_x, tile2_y])			
+						x_number = 0
+
+						while(tile1_x + x_number <= tile2_x):
+							aux1_x = tile1_x + x_number
+							y_number = 0
+
+							while(tile1_y + y_number <= tile2_y):
+								aux1_y = tile1_y + y_number
+
+								c_nw = calculate_tile.calculate_coordinates(aux1_x, aux1_y, int(args.zoom))
+								c_se = calculate_tile.calculate_coordinates(aux1_x + n_tiles, aux1_y + n_tiles, int(args.zoom))
+
+								if c_nw == 'null' or c_se == 'null':
+									print("ERROR: Wrong tiles.")
+								else:	
+									print("Rendering from tile [" + str(aux1_x) + ", " + str(aux1_y) + "] to [" + str(aux1_x + n_tiles - 1) 
+										+ "," + str(aux1_y + n_tiles -1) + "] with coordinates from [" + str(c_nw[0]) + ", " + str(c_nw[1]) 
+										+ "] to [" + str(c_se[0]) + ", " + str(c_se[1]) + "].")
+
+									tile_size_x, tile_size_y, w_tiles = render((aux1_x, aux1_y), (aux1_x + n_tiles - 1, aux1_y + n_tiles - 1), c_nw, c_se, args.dir_view, args.angle, result, args.lidar)
+									
+									if tile_size_x == 'null' and tile_size_y == 'null':
+										print("ERROR: Nothing to render. Continuing...")
+									else:
+										if args.dir_view == 'S':
+											tile_init = calculate_tile.tile_to_south((aux1_x + n_tiles - 1, aux1_y + n_tiles - 1), int(args.zoom))
+										elif args.dir_view == 'E':
+											tile1_aux = calculate_tile.tile_to_east((aux1_x, aux1_y), int(args.zoom))
+											tile2_aux = calculate_tile.tile_to_east((aux1_x + n_tiles - 1, aux1_y + n_tiles - 1), int(args.zoom))
+
+											tile_init = (tile1_aux[0], tile2_aux[1])
+										elif args.dir_view == 'W':
+											tile1_aux = calculate_tile.tile_to_west((aux1_x, aux1_y), int(args.zoom))
+											tile2_aux = calculate_tile.tile_to_west((aux1_x + n_tiles - 1, aux1_y + n_tiles - 1), int(args.zoom))		
+											
+											tile_init = (tile2_aux[0], tile1_aux[1])
+										else:
+											tile_init = (aux1_x, aux1_y)
+
+										tessellation(result, tile_init, tile_size_x, tile_size_y, w_tiles, args.zoom, args.dir_view, args.angle, dist_tile)
+
+								y_number += n_tiles
+
+							x_number += n_tiles
+						"""
 						c_nw = calculate_tile.calculate_coordinates(tile_1[0], tile_1[1], int(args.zoom))
 						c_se = calculate_tile.calculate_coordinates(tile_2[0] + 1, tile_2[1] + 1, int(args.zoom))
 
@@ -283,6 +350,7 @@ def main():
 								print("ERROR: Nothing to render. Continuing...")
 							else:		
 								tessellation(result, tile_init, tile_size_x, tile_size_y, w_tiles, args.zoom, args.dir_view, args.angle, dist_tile)	
+						"""
 					else:
 						print("ERROR: Introduce tiles correctly.")
 				else:
@@ -303,11 +371,11 @@ def main():
 						#tile2_x = 141
 						#tile1_y = 64
 						#tile2_y = 93
-						tile1_x = 976
+						tile1_x = 586
 						#tile1_x = 2080
-						tile2_x = 1128
-						tile1_y = 512
-						tile2_y = 744
+						tile2_x = 593
+						#tile1_y = 512
+						#tile2_y = 744
 						#tile1_x = 478
 						#tile2_x = 481
 						#tile1_y = 456
