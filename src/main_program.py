@@ -333,24 +333,6 @@ def main():
 								y_number += n_tiles
 
 							x_number += n_tiles
-						"""
-						c_nw = calculate_tile.calculate_coordinates(tile_1[0], tile_1[1], int(args.zoom))
-						c_se = calculate_tile.calculate_coordinates(tile_2[0] + 1, tile_2[1] + 1, int(args.zoom))
-
-						if c_nw == 'null' or c_se == 'null':
-							print("ERROR: Wrong tiles.")
-						else:	
-							print("Rendering from tile [" + str(tile_1[0]) + ", " + str(tile_1[1]) + "] to [" + str(tile_2[0]) 
-								+ "," + str(tile_2[1]) + "] with coordinates from [" + str(c_nw[0]) + ", " + str(c_nw[1]) 
-								+ "] to [" + str(c_se[0]) + ", " + str(c_se[1]) + "].")
-
-							tile_size_x, tile_size_y, w_tiles = render(tile_1, tile_2, c_nw, c_se, args.dir_view, args.angle, result, args.lidar)
-							
-							if tile_size_x == 'null' and tile_size_y == 'null':
-								print("ERROR: Nothing to render. Continuing...")
-							else:		
-								tessellation(result, tile_init, tile_size_x, tile_size_y, w_tiles, args.zoom, args.dir_view, args.angle, dist_tile)	
-						"""
 					else:
 						print("ERROR: Introduce tiles correctly.")
 				else:
@@ -367,23 +349,8 @@ def main():
 						tile1_y = iTile_z5_y * (2 ** (int(args.zoom) - 5))
 						tile2_x = fTile_z5_x * (2 ** (int(args.zoom) - 5))
 						tile2_y = fTile_z5_y * (2 ** (int(args.zoom) - 5))
-						#tile1_x = 122
-						#tile2_x = 141
-						#tile1_y = 64
-						#tile2_y = 93
-						tile1_x = 586
-						#tile1_x = 2080
-						tile2_x = 593
-						#tile1_y = 512
-						#tile2_y = 744
-						#tile1_x = 478
-						#tile2_x = 481
-						#tile1_y = 456
-						#tile2_y = 463
-						#tile1_x = 372
-						#tile2_x = 140
-						#tile1_y = 64
-						#tile2_y = 68
+
+						#tile1_x = 672
 
 						result = "./result.png"
 
