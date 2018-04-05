@@ -2,7 +2,7 @@ from laspy.file import File
 import numpy as np
 import colorsys, random, math, os, load_info
 
-laszip = "/home/pablo/Documentos/LAStools/bin/laszip"
+laszip = "../LAStools/bin/laszip"
 
 def generate_spheres(lidar_list, areas_list, c1, c2):
 	"""
