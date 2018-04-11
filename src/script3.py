@@ -1,17 +1,22 @@
 import os, sys
 
-minx = 36
-maxx = 104
-miny = 32
-maxy = 100
-minx = 18
-maxx = 52
-miny = 16
-maxy = 50
-minx = 9
-maxx = 26
-miny = 8
-maxy = 25
+minx = 13
+maxx = 14
+miny = 15
+maxy = 16
+
+#minx = 36
+#maxx = 104
+#miny = 32
+#maxy = 100
+#minx = 18
+#maxx = 52
+#miny = 16
+#maxy = 50
+#minx = 9
+#maxx = 26
+#miny = 8
+#maxy = 25
 
 # Progress bar
 toolbar_width = maxx - minx + 1

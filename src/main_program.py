@@ -283,9 +283,9 @@ def main():
 							tile1_x -= 1
 						while tile1_y % n_tiles != 0:
 							tile1_y -= 1	
-						while tile2_x % n_tiles == 0:
+						while tile2_x % n_tiles == 0 and n_tiles != 1:
 							tile2_x -= 1
-						while tile2_x % n_tiles == 0:
+						while tile2_x % n_tiles == 0 and n_tiles != 1:
 							tile2_x -= 1
 						print([tile1_x, tile1_y])
 						print([tile2_x, tile2_y])			

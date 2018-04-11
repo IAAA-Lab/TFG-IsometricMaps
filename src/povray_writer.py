@@ -10,6 +10,7 @@ def write_heightfields(mdt_list, orto_list):
 	mdt_list.sort(reverse=True, key=lambda mdt: mdt[0])
 
 	for mdt_file in mdt_list:
+		empty = True
 		height_field = ("height_field {\npng \"" + mdt_file[0] + "\"\nsmooth\nscale <" + mdt_file[1] 
 			+ "*" + mdt_file[5] + ", 4000, " + mdt_file[2] + "*" + mdt_file[5] + ">\ntranslate <" 
 			+ mdt_file[3] + ", 0, " + mdt_file[4] + "> + <-2.5, 0, -2.5>\n")
@@ -31,6 +32,7 @@ def write_heightfields(mdt_list, orto_list):
 					accept = False
 									
 			if accept == True:
+				empty = False
 				for base, dirs, files in os.walk(orto_file[1]):
 					image_format = ""
 					for f in files:
@@ -52,8 +54,9 @@ def write_heightfields(mdt_list, orto_list):
 
 				height_field += write_texture_finish()		
 
-		height_field += ("}\n")		
-		heightfields_to_pov += height_field
+		height_field += ("}\n")
+		if empty == False:		
+			heightfields_to_pov += height_field
 		first = False	
 
 	return heightfields_to_pov			
